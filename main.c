@@ -1,24 +1,27 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int main(int argv, char **argv)
+
+int main(int argc, char **argv)
 {
-	YAP_Interpreter *interpreter;
-	FILE *fp;
-
-	if (argv != 2) {
-		fprintf(stderr, "请输入文件名\n");
+	
+	if (argc != 2) {
+		fprintf(stderr, "[ERROR]:请输入文件名\n");
 		exit(1);
 	}
 
-	fp = fopen(argv[1], "r");
+	FILE *fp = fopen(argv[1], "r");
 	if (fp == NULL) {
-		fprintf(stderr, "文件:%s不存在\n", argv[1]);
+		fprintf(stderr, "[ERROR]:文件:%s不存在\n", argv[1]);
 		exit(1);
 	}
+
+	extern int yyparse(void);
+    extern FILE *yyin;
 
 	yyin = fp;
 	if (yyparse()) {
-		fprintf(stderr, "Error\n");
+		fprintf(stderr, "[ERROR]\n");
 		exit(1);
 	}
 

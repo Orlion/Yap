@@ -1,0 +1,82 @@
+%{
+#include <stdio.h>
+#include <string.h>
+
+int yywrap(void)
+{
+	return 1;
+}
+%}
+<INITIAL>"function"	return FUNCTION;
+<INITIAL>"if"		return IF;
+<INITIAL>"else"		return ELSE;
+<INITIAL>"elseif"	return ELSEIF;
+<INITIAL>"while"		return WHILE;
+<INITIAL>"for"		return FOR;
+<INITIAL>"return"	return RETURN_T;
+<INITIAL>"break"		return BREAK;
+<INITIAL>"continue"	return CONTINUE;
+<INITIAL>"null"		return NULL_T;
+<INITIAL>"true"		return TRUE_T;
+<INITIAL>"false"		return FALSE_T;
+<INITIAL>"global"	return GLOBAL_T;
+<INITIAL>"("			return LP;
+<INITIAL>")"			return RP;
+<INITIAL>"{"          return LC;
+<INITIAL>"}"          return RC;
+<INITIAL>";"          return SEMICOLON;
+<INITIAL>","          return COMMA;
+<INITIAL>"&&"         return LOGICAL_AND;
+<INITIAL>"||"         return LOGICAL_OR;
+<INITIAL>"="          return ASSIGN;
+<INITIAL>"=="         return EQ;
+<INITIAL>"!="         return NE;
+<INITIAL>">"          return GT;
+<INITIAL>">="         return GE;
+<INITIAL>"<"          return LT;
+<INITIAL>"<="         return LE;
+<INITIAL>"+"          return ADD;
+<INITIAL>"-"          return SUB;
+<INITIAL>"*"          return MUL;
+<INITIAL>"/"          return DIV;
+<INITIAL>"%"          return MOD;
+<INITIAL>[A-Za-z_]\w* {
+	yylval.identifier = yytext;
+    return IDENTIFIER;
+}
+<INITAL>[1-9][0-9]*|"0" {
+	yylval.expression = yytext;
+	return EXPRESSION;
+}
+<INITIAL>\" {
+	BEGIN STRING_INITIAL_STATE;
+}
+<INITIAL>[ \t] ;
+<INITIAL> \n;
+<INITIAL> # BEGIN COMMENT;
+<INITIAL>. {
+	char buf = char[LINE_BUF_SIZE];
+
+	if (isprintf(yytext[0])) {
+		buf[0] = yytext[0];
+		buf[1] = '\0';
+	} else {
+		sprintf(buf, "0x%02", (unsign char)yytext[0]);
+	}	
+}
+<COMMENT> \n {
+	BEGIN INITIAL;
+}
+<COMMENT>. ;
+<STRING_INITIAL_STATE>\" {
+	BEGIN INITIAL;
+	return STRING_INITIAL;
+}
+<STRING_INITIAL_STATE>\n {
+
+}
+<STRING_LITERAL_STATE>\\\"      ;
+<STRING_LITERAL_STATE>\\n       ;
+<STRING_LITERAL_STATE>\\t       ;
+<STRING_LITERAL_STATE>\\\\      ;
+<STRING_LITERAL_STATE>.         ;
