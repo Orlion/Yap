@@ -17,9 +17,9 @@ y.tab.c : yap.y
 	bison --yacc -dv yap.y
 lex.yy.c : yap.l yap.y y.tab.h
 	flex yap.l
-y.tab.o: y.tab.c
+y.tab.o: y.tab.c yap.h
 	$(CC) -c -g $*.c $(INCLUDES)
-lex.yy.o: lex.yy.c
+lex.yy.o: lex.yy.c yap.h
 	$(CC) -c -g $*.c $(INCLUDES)
 main.o: main.c
 	$(CC) -c -g $*.c $(INCLUDES)

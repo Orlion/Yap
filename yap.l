@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "yap.h"
 #include "y.tab.h"
 
 int yywrap(void)
@@ -43,23 +44,28 @@ int yywrap(void)
 <INITIAL>"/"            return DIV;
 <INITIAL>"%"            return MOD;
 <INITIAL>[A-Za-z_][A-Za-z_0-9]* {
-    printf("变量:%s", yytext);
+    printf("变量%s\n", yytext);
+    yylval.identifier = yytext;
+    return IDENTIFIER;
 }
 <INITIAL>([1-9][0-9]*)|"0" {
-    printf("整数:%s", yytext);
+    printf("整数:%s\n", yytext);
+    double temp;
+	sscanf(yytext, "%lf", &temp);
+	yylval.double_value = temp;
+	return DOUBLE_LITERAL;
 }
 <INITIAL>[0-9]+\.[0-9]+ {
-    printf("小数:%s", yytext);
+    printf("小数:%s\n", yytext);
 }
 <INITIAL>\" {
-    printf("字符串开始");
+    printf("字符串开始\n");
 }
 <INITIAL>[ \t] ;
-<INITIAL>\n {printf("换行");}
+<INITIAL>\n {printf("换行\n");}
 <INITIAL>#     BEGIN COMMENT;
 <INITIAL>.      {
     char buf[10];
-
     if (isprint(yytext[0])) {
         buf[0] = yytext[0];
         buf[1] = '\0';
@@ -67,19 +73,19 @@ int yywrap(void)
         sprintf(buf, "0x%02x", (unsigned char)yytext[0]);
     }
 
-    printf("词法分析错误");
+    printf("词法分析错误\n");
 }
 <COMMENT>\n     {
-    printf("注释结束");
+    printf("注释结束\n");
     BEGIN INITIAL;
 }
 <COMMENT>.      ;
 <STRING_LITERAL_STATE>\"        {
-    printf("字符串结束");
+    printf("字符串结束\n");
     BEGIN INITIAL;
 }
 <STRING_LITERAL_STATE>\n        {
-    printf("字符串换行");
+    printf("字符串换行\n");
 }
 <STRING_LITERAL_STATE>\\\"      printf("字符串有冒号");
 <STRING_LITERAL_STATE>\\n       printf("字符串有换行");

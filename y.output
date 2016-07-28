@@ -14,9 +14,7 @@ Terminals unused in grammar
    RP
    LC
    RC
-   SEMICOLON
    COMMA
-   ASSIGN
    LOGICAL_AND
    LOGICAL_OR
    EQ
@@ -31,246 +29,287 @@ Terminals unused in grammar
    GLOBAL_T
 
 
-State 5 conflicts: 1 shift/reduce
-State 13 conflicts: 1 shift/reduce
-State 14 conflicts: 1 shift/reduce
+State 15 conflicts: 2 shift/reduce
 
 
 Grammar
 
-    0 $accept: line_list $end
+    0 $accept: statement $end
 
-    1 line_list: line
-    2          | line_list line
+    1 statement: expression SEMICOLON
 
-    3 line: expression
+    2 expression: term
+    3           | expression ADD term
+    4           | expression SUB term
+    5           | IDENTIFIER ASSIGN expression
 
-    4 expression: term
-    5           | expression ADD term
-    6           | expression SUB term
+    6 term: primary_expression
+    7     | term MUL primary_expression
+    8     | term DIV primary_expression
 
-    7 term: primary_expression
-    8     | term MUL primary_expression
-    9     | term DIV primary_expression
-
-   10 primary_expression: DIV
+    9 primary_expression: IDENTIFIER
+   10                   | INT_LITERAL
+   11                   | DOUBLE_LITERAL
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
 error (256)
-FUNCTION (258)
-IF (259)
-ELSE (260)
-ELSEIF (261)
-WHILE (262)
-FOR (263)
-RETURN_T (264)
-BREAK (265)
-CONTINUE (266)
-NULL_T (267)
-LP (268)
-RP (269)
-LC (270)
-RC (271)
-SEMICOLON (272)
-COMMA (273)
-ASSIGN (274)
-LOGICAL_AND (275)
-LOGICAL_OR (276)
-EQ (277)
-NE (278)
-GT (279)
-GE (280)
-LT (281)
-LE (282)
-ADD (283) 5
-SUB (284) 6
-MUL (285) 8
-DIV (286) 9 10
-MOD (287)
-TRUE_T (288)
-FALSE_T (289)
-GLOBAL_T (290)
+INT_LITERAL (258) 10
+DOUBLE_LITERAL (259) 11
+IDENTIFIER (260) 5 9
+FUNCTION (261)
+IF (262)
+ELSE (263)
+ELSEIF (264)
+WHILE (265)
+FOR (266)
+RETURN_T (267)
+BREAK (268)
+CONTINUE (269)
+NULL_T (270)
+LP (271)
+RP (272)
+LC (273)
+RC (274)
+SEMICOLON (275) 1
+COMMA (276)
+ASSIGN (277) 5
+LOGICAL_AND (278)
+LOGICAL_OR (279)
+EQ (280)
+NE (281)
+GT (282)
+GE (283)
+LT (284)
+LE (285)
+ADD (286) 3
+SUB (287) 4
+MUL (288) 7
+DIV (289) 8
+MOD (290)
+TRUE_T (291)
+FALSE_T (292)
+GLOBAL_T (293)
 
 
 Nonterminals, with rules where they appear
 
-$accept (36)
+$accept (39)
     on left: 0
-line_list (37)
-    on left: 1 2, on right: 0 2
-line (38)
-    on left: 3, on right: 1 2
-expression (39)
-    on left: 4 5 6, on right: 3 5 6
-term (40)
-    on left: 7 8 9, on right: 4 5 6 8 9
-primary_expression (41)
-    on left: 10, on right: 7 8 9
+statement (40)
+    on left: 1, on right: 0
+expression (41)
+    on left: 2 3 4 5, on right: 1 3 4 5
+term (42)
+    on left: 6 7 8, on right: 2 3 4 7 8
+primary_expression (43)
+    on left: 9 10 11, on right: 6 7 8
 
 
 state 0
 
-    0 $accept: . line_list $end
+    0 $accept: . statement $end
 
-    DIV  shift, and go to state 1
+    INT_LITERAL     shift, and go to state 1
+    DOUBLE_LITERAL  shift, and go to state 2
+    IDENTIFIER      shift, and go to state 3
 
-    line_list           go to state 2
-    line                go to state 3
-    expression          go to state 4
-    term                go to state 5
-    primary_expression  go to state 6
+    statement           go to state 4
+    expression          go to state 5
+    term                go to state 6
+    primary_expression  go to state 7
 
 
 state 1
 
-   10 primary_expression: DIV .
+   10 primary_expression: INT_LITERAL .
 
     $default  reduce using rule 10 (primary_expression)
 
 
 state 2
 
-    0 $accept: line_list . $end
-    2 line_list: line_list . line
+   11 primary_expression: DOUBLE_LITERAL .
 
-    $end  shift, and go to state 7
-    DIV   shift, and go to state 1
-
-    line                go to state 8
-    expression          go to state 4
-    term                go to state 5
-    primary_expression  go to state 6
+    $default  reduce using rule 11 (primary_expression)
 
 
 state 3
 
-    1 line_list: line .
+    5 expression: IDENTIFIER . ASSIGN expression
+    9 primary_expression: IDENTIFIER .
 
-    $default  reduce using rule 1 (line_list)
+    ASSIGN  shift, and go to state 8
+
+    $default  reduce using rule 9 (primary_expression)
 
 
 state 4
 
-    3 line: expression .
-    5 expression: expression . ADD term
-    6           | expression . SUB term
+    0 $accept: statement . $end
 
-    ADD  shift, and go to state 9
-    SUB  shift, and go to state 10
-
-    $default  reduce using rule 3 (line)
+    $end  shift, and go to state 9
 
 
 state 5
 
-    4 expression: term .
-    8 term: term . MUL primary_expression
-    9     | term . DIV primary_expression
+    1 statement: expression . SEMICOLON
+    3 expression: expression . ADD term
+    4           | expression . SUB term
 
-    MUL  shift, and go to state 11
-    DIV  shift, and go to state 12
-
-    DIV       [reduce using rule 4 (expression)]
-    $default  reduce using rule 4 (expression)
+    SEMICOLON  shift, and go to state 10
+    ADD        shift, and go to state 11
+    SUB        shift, and go to state 12
 
 
 state 6
 
-    7 term: primary_expression .
+    2 expression: term .
+    7 term: term . MUL primary_expression
+    8     | term . DIV primary_expression
 
-    $default  reduce using rule 7 (term)
+    MUL  shift, and go to state 13
+    DIV  shift, and go to state 14
+
+    $default  reduce using rule 2 (expression)
 
 
 state 7
 
-    0 $accept: line_list $end .
+    6 term: primary_expression .
 
-    $default  accept
+    $default  reduce using rule 6 (term)
 
 
 state 8
 
-    2 line_list: line_list line .
+    5 expression: IDENTIFIER ASSIGN . expression
 
-    $default  reduce using rule 2 (line_list)
+    INT_LITERAL     shift, and go to state 1
+    DOUBLE_LITERAL  shift, and go to state 2
+    IDENTIFIER      shift, and go to state 3
+
+    expression          go to state 15
+    term                go to state 6
+    primary_expression  go to state 7
 
 
 state 9
 
-    5 expression: expression ADD . term
+    0 $accept: statement $end .
 
-    DIV  shift, and go to state 1
-
-    term                go to state 13
-    primary_expression  go to state 6
+    $default  accept
 
 
 state 10
 
-    6 expression: expression SUB . term
+    1 statement: expression SEMICOLON .
 
-    DIV  shift, and go to state 1
-
-    term                go to state 14
-    primary_expression  go to state 6
+    $default  reduce using rule 1 (statement)
 
 
 state 11
 
-    8 term: term MUL . primary_expression
+    3 expression: expression ADD . term
 
-    DIV  shift, and go to state 1
+    INT_LITERAL     shift, and go to state 1
+    DOUBLE_LITERAL  shift, and go to state 2
+    IDENTIFIER      shift, and go to state 16
 
-    primary_expression  go to state 15
+    term                go to state 17
+    primary_expression  go to state 7
 
 
 state 12
 
-    9 term: term DIV . primary_expression
+    4 expression: expression SUB . term
 
-    DIV  shift, and go to state 1
+    INT_LITERAL     shift, and go to state 1
+    DOUBLE_LITERAL  shift, and go to state 2
+    IDENTIFIER      shift, and go to state 16
 
-    primary_expression  go to state 16
+    term                go to state 18
+    primary_expression  go to state 7
 
 
 state 13
 
-    5 expression: expression ADD term .
-    8 term: term . MUL primary_expression
-    9     | term . DIV primary_expression
+    7 term: term MUL . primary_expression
 
-    MUL  shift, and go to state 11
-    DIV  shift, and go to state 12
+    INT_LITERAL     shift, and go to state 1
+    DOUBLE_LITERAL  shift, and go to state 2
+    IDENTIFIER      shift, and go to state 16
 
-    DIV       [reduce using rule 5 (expression)]
-    $default  reduce using rule 5 (expression)
+    primary_expression  go to state 19
 
 
 state 14
 
-    6 expression: expression SUB term .
-    8 term: term . MUL primary_expression
-    9     | term . DIV primary_expression
+    8 term: term DIV . primary_expression
 
-    MUL  shift, and go to state 11
-    DIV  shift, and go to state 12
+    INT_LITERAL     shift, and go to state 1
+    DOUBLE_LITERAL  shift, and go to state 2
+    IDENTIFIER      shift, and go to state 16
 
-    DIV       [reduce using rule 6 (expression)]
-    $default  reduce using rule 6 (expression)
+    primary_expression  go to state 20
 
 
 state 15
 
-    8 term: term MUL primary_expression .
+    3 expression: expression . ADD term
+    4           | expression . SUB term
+    5           | IDENTIFIER ASSIGN expression .
 
-    $default  reduce using rule 8 (term)
+    ADD  shift, and go to state 11
+    SUB  shift, and go to state 12
+
+    ADD       [reduce using rule 5 (expression)]
+    SUB       [reduce using rule 5 (expression)]
+    $default  reduce using rule 5 (expression)
 
 
 state 16
 
-    9 term: term DIV primary_expression .
+    9 primary_expression: IDENTIFIER .
 
-    $default  reduce using rule 9 (term)
+    $default  reduce using rule 9 (primary_expression)
+
+
+state 17
+
+    3 expression: expression ADD term .
+    7 term: term . MUL primary_expression
+    8     | term . DIV primary_expression
+
+    MUL  shift, and go to state 13
+    DIV  shift, and go to state 14
+
+    $default  reduce using rule 3 (expression)
+
+
+state 18
+
+    4 expression: expression SUB term .
+    7 term: term . MUL primary_expression
+    8     | term . DIV primary_expression
+
+    MUL  shift, and go to state 13
+    DIV  shift, and go to state 14
+
+    $default  reduce using rule 4 (expression)
+
+
+state 19
+
+    7 term: term MUL primary_expression .
+
+    $default  reduce using rule 7 (term)
+
+
+state 20
+
+    8 term: term DIV primary_expression .
+
+    $default  reduce using rule 8 (term)

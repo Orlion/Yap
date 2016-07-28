@@ -523,6 +523,7 @@ char *yytext;
 #line 1 "yap.l"
 #line 2 "yap.l"
 #include <stdio.h>
+#include "yap.h"
 #include "y.tab.h"
 
 int yywrap(void)
@@ -530,7 +531,7 @@ int yywrap(void)
 	return 1;
 }
 
-#line 534 "lex.yy.c"
+#line 535 "lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -714,9 +715,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 11 "yap.l"
+#line 12 "yap.l"
 
-#line 720 "lex.yy.c"
+#line 721 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -801,219 +802,224 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 12 "yap.l"
+#line 13 "yap.l"
 return FUNCTION;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 13 "yap.l"
+#line 14 "yap.l"
 return IF;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 14 "yap.l"
+#line 15 "yap.l"
 return ELSE;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 15 "yap.l"
+#line 16 "yap.l"
 return ELSEIF;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 16 "yap.l"
+#line 17 "yap.l"
 return WHILE;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 17 "yap.l"
+#line 18 "yap.l"
 return FOR;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 18 "yap.l"
+#line 19 "yap.l"
 return RETURN_T;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 19 "yap.l"
+#line 20 "yap.l"
 return BREAK;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 20 "yap.l"
+#line 21 "yap.l"
 return CONTINUE;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 21 "yap.l"
+#line 22 "yap.l"
 return NULL_T;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 22 "yap.l"
+#line 23 "yap.l"
 return TRUE_T;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 23 "yap.l"
+#line 24 "yap.l"
 return FALSE_T;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 24 "yap.l"
+#line 25 "yap.l"
 return GLOBAL_T;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 25 "yap.l"
+#line 26 "yap.l"
 return LP;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 26 "yap.l"
+#line 27 "yap.l"
 return RP;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 27 "yap.l"
+#line 28 "yap.l"
 return LC;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 28 "yap.l"
+#line 29 "yap.l"
 return RC;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 29 "yap.l"
+#line 30 "yap.l"
 return SEMICOLON;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 30 "yap.l"
+#line 31 "yap.l"
 return COMMA;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 31 "yap.l"
+#line 32 "yap.l"
 return LOGICAL_AND;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 32 "yap.l"
+#line 33 "yap.l"
 return LOGICAL_OR;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 33 "yap.l"
+#line 34 "yap.l"
 return ASSIGN;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 34 "yap.l"
+#line 35 "yap.l"
 return EQ;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 35 "yap.l"
+#line 36 "yap.l"
 return NE;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 36 "yap.l"
+#line 37 "yap.l"
 return GT;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 37 "yap.l"
+#line 38 "yap.l"
 return GE;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 38 "yap.l"
+#line 39 "yap.l"
 return LT;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 39 "yap.l"
+#line 40 "yap.l"
 return LE;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 40 "yap.l"
+#line 41 "yap.l"
 return ADD;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 41 "yap.l"
+#line 42 "yap.l"
 return SUB;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 42 "yap.l"
+#line 43 "yap.l"
 return MUL;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 43 "yap.l"
+#line 44 "yap.l"
 return DIV;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 44 "yap.l"
+#line 45 "yap.l"
 return MOD;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 45 "yap.l"
+#line 46 "yap.l"
 {
-    printf("变量:%s", yytext);
+    printf("变量%s\n", yytext);
+    yylval.identifier = yytext;
+    return IDENTIFIER;
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 48 "yap.l"
+#line 51 "yap.l"
 {
-    printf("整数:%s", yytext);
+    printf("整数:%s\n", yytext);
+    double temp;
+	sscanf(yytext, "%lf", &temp);
+	yylval.double_value = temp;
+	return DOUBLE_LITERAL;
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 51 "yap.l"
+#line 58 "yap.l"
 {
-    printf("小数:%s", yytext);
+    printf("小数:%s\n", yytext);
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 54 "yap.l"
+#line 61 "yap.l"
 {
-    printf("字符串开始");
+    printf("字符串开始\n");
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 57 "yap.l"
+#line 64 "yap.l"
 ;
 	YY_BREAK
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 58 "yap.l"
-{printf("换行");}
+#line 65 "yap.l"
+{printf("换行\n");}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 59 "yap.l"
+#line 66 "yap.l"
 BEGIN COMMENT;
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 60 "yap.l"
+#line 67 "yap.l"
 {
     char buf[10];
-
     if (isprint(yytext[0])) {
         buf[0] = yytext[0];
         buf[1] = '\0';
@@ -1021,70 +1027,70 @@ YY_RULE_SETUP
         sprintf(buf, "0x%02x", (unsigned char)yytext[0]);
     }
 
-    printf("词法分析错误");
+    printf("词法分析错误\n");
 }
 	YY_BREAK
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 72 "yap.l"
+#line 78 "yap.l"
 {
-    printf("注释结束");
+    printf("注释结束\n");
     BEGIN INITIAL;
 }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 76 "yap.l"
+#line 82 "yap.l"
 ;
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 77 "yap.l"
+#line 83 "yap.l"
 {
-    printf("字符串结束");
+    printf("字符串结束\n");
     BEGIN INITIAL;
 }
 	YY_BREAK
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 81 "yap.l"
+#line 87 "yap.l"
 {
-    printf("字符串换行");
+    printf("字符串换行\n");
 }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 84 "yap.l"
+#line 90 "yap.l"
 printf("字符串有冒号");
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 85 "yap.l"
+#line 91 "yap.l"
 printf("字符串有换行");
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 86 "yap.l"
+#line 92 "yap.l"
 printf("字符串有制表");
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 87 "yap.l"
+#line 93 "yap.l"
 printf("字符串有反斜杠");
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 88 "yap.l"
+#line 94 "yap.l"
 printf("字符串中有%c", yytext[0]);
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 89 "yap.l"
+#line 95 "yap.l"
 ECHO;
 	YY_BREAK
-#line 1088 "lex.yy.c"
+#line 1094 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(STRING_LITERAL_STATE):
@@ -2084,6 +2090,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 89 "yap.l"
+#line 95 "yap.l"
 
 

@@ -39,75 +39,81 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     FUNCTION = 258,
-     IF = 259,
-     ELSE = 260,
-     ELSEIF = 261,
-     WHILE = 262,
-     FOR = 263,
-     RETURN_T = 264,
-     BREAK = 265,
-     CONTINUE = 266,
-     NULL_T = 267,
-     LP = 268,
-     RP = 269,
-     LC = 270,
-     RC = 271,
-     SEMICOLON = 272,
-     COMMA = 273,
-     ASSIGN = 274,
-     LOGICAL_AND = 275,
-     LOGICAL_OR = 276,
-     EQ = 277,
-     NE = 278,
-     GT = 279,
-     GE = 280,
-     LT = 281,
-     LE = 282,
-     ADD = 283,
-     SUB = 284,
-     MUL = 285,
-     DIV = 286,
-     MOD = 287,
-     TRUE_T = 288,
-     FALSE_T = 289,
-     GLOBAL_T = 290
+     INT_LITERAL = 258,
+     DOUBLE_LITERAL = 259,
+     IDENTIFIER = 260,
+     FUNCTION = 261,
+     IF = 262,
+     ELSE = 263,
+     ELSEIF = 264,
+     WHILE = 265,
+     FOR = 266,
+     RETURN_T = 267,
+     BREAK = 268,
+     CONTINUE = 269,
+     NULL_T = 270,
+     LP = 271,
+     RP = 272,
+     LC = 273,
+     RC = 274,
+     SEMICOLON = 275,
+     COMMA = 276,
+     ASSIGN = 277,
+     LOGICAL_AND = 278,
+     LOGICAL_OR = 279,
+     EQ = 280,
+     NE = 281,
+     GT = 282,
+     GE = 283,
+     LT = 284,
+     LE = 285,
+     ADD = 286,
+     SUB = 287,
+     MUL = 288,
+     DIV = 289,
+     MOD = 290,
+     TRUE_T = 291,
+     FALSE_T = 292,
+     GLOBAL_T = 293
    };
 #endif
 /* Tokens.  */
-#define FUNCTION 258
-#define IF 259
-#define ELSE 260
-#define ELSEIF 261
-#define WHILE 262
-#define FOR 263
-#define RETURN_T 264
-#define BREAK 265
-#define CONTINUE 266
-#define NULL_T 267
-#define LP 268
-#define RP 269
-#define LC 270
-#define RC 271
-#define SEMICOLON 272
-#define COMMA 273
-#define ASSIGN 274
-#define LOGICAL_AND 275
-#define LOGICAL_OR 276
-#define EQ 277
-#define NE 278
-#define GT 279
-#define GE 280
-#define LT 281
-#define LE 282
-#define ADD 283
-#define SUB 284
-#define MUL 285
-#define DIV 286
-#define MOD 287
-#define TRUE_T 288
-#define FALSE_T 289
-#define GLOBAL_T 290
+#define INT_LITERAL 258
+#define DOUBLE_LITERAL 259
+#define IDENTIFIER 260
+#define FUNCTION 261
+#define IF 262
+#define ELSE 263
+#define ELSEIF 264
+#define WHILE 265
+#define FOR 266
+#define RETURN_T 267
+#define BREAK 268
+#define CONTINUE 269
+#define NULL_T 270
+#define LP 271
+#define RP 272
+#define LC 273
+#define RC 274
+#define SEMICOLON 275
+#define COMMA 276
+#define ASSIGN 277
+#define LOGICAL_AND 278
+#define LOGICAL_OR 279
+#define EQ 280
+#define NE 281
+#define GT 282
+#define GE 283
+#define LT 284
+#define LE 285
+#define ADD 286
+#define SUB 287
+#define MUL 288
+#define DIV 289
+#define MOD 290
+#define TRUE_T 291
+#define FALSE_T 292
+#define GLOBAL_T 293
 
 
 
@@ -117,14 +123,16 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 6 "yap.y"
+#line 7 "yap.y"
 
-	 
+    char           *identifier;
+	double         double_value;
+    Statement      *statement;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 128 "y.tab.h"
+#line 136 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
