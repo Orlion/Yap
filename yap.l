@@ -1,19 +1,22 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include "yap.h"
 #include "y.tab.h"
 
-int yywrap(void)
+int
+yywrap(void)
 {
-	return 1;
+    return 1;
 }
+
 %}
 %start COMMENT STRING_LITERAL_STATE
 %%
 <INITIAL>"function"     return FUNCTION;
 <INITIAL>"if"           return IF;
 <INITIAL>"else"         return ELSE;
-<INITIAL>"elseif"       return ELSEIF;
+<INITIAL>"elsif"        return ELSEIF;
 <INITIAL>"while"        return WHILE;
 <INITIAL>"for"          return FOR;
 <INITIAL>"return"       return RETURN_T;
@@ -44,52 +47,57 @@ int yywrap(void)
 <INITIAL>"/"            return DIV;
 <INITIAL>"%"            return MOD;
 <INITIAL>[A-Za-z_][A-Za-z_0-9]* {
-    printf("变量%s\n", yytext);
-    yylval.identifier = yytext;
+    /* yylval.identifier = crb_create_identifier(yytext); */
     return IDENTIFIER;
 }
 <INITIAL>([1-9][0-9]*)|"0" {
-    printf("整数:%s\n", yytext);
-    double temp;
-	sscanf(yytext, "%lf", &temp);
-	yylval.double_value = temp;
-	return DOUBLE_LITERAL;
+    /* Expression  *expression = crb_alloc_expression(INT_EXPRESSION); */
+    /* sscanf(yytext, "%d", &expression->u.int_value); */
+    /* yylval.expression = expression; */
+    return INT_LITERAL;
 }
 <INITIAL>[0-9]+\.[0-9]+ {
-    printf("小数:%s\n", yytext);
+    /* Expression  *expression = crb_alloc_expression(DOUBLE_EXPRESSION); */
+    /* sscanf(yytext, "%lf", &expression->u.double_value); */
+    /* yylval.expression = expression; */
+    return DOUBLE_LITERAL;
 }
 <INITIAL>\" {
-    printf("字符串开始\n");
+    /* crb_open_string_literal(); */
+    BEGIN STRING_LITERAL_STATE;
 }
 <INITIAL>[ \t] ;
-<INITIAL>\n {printf("换行\n");}
+<INITIAL>\n { printf("换行\n");}
 <INITIAL>#     BEGIN COMMENT;
 <INITIAL>.      {
     char buf[10];
+
     if (isprint(yytext[0])) {
         buf[0] = yytext[0];
         buf[1] = '\0';
     } else {
         sprintf(buf, "0x%02x", (unsigned char)yytext[0]);
     }
-
-    printf("词法分析错误\n");
 }
 <COMMENT>\n     {
-    printf("注释结束\n");
+    /* increment_line_number(); */
     BEGIN INITIAL;
 }
 <COMMENT>.      ;
 <STRING_LITERAL_STATE>\"        {
-    printf("字符串结束\n");
+    /* Expression *expression = crb_alloc_expression(STRING_EXPRESSION); */
+    /* expression->u.string_value = crb_close_string_literal(); */
+    /* yylval.expression = expression; */
     BEGIN INITIAL;
+    return STRING_LITERAL;
 }
 <STRING_LITERAL_STATE>\n        {
-    printf("字符串换行\n");
+    /* crb_add_string_literal('\n'); */
+    /* increment_line_number(); */
 }
-<STRING_LITERAL_STATE>\\\"      printf("字符串有冒号");
-<STRING_LITERAL_STATE>\\n       printf("字符串有换行");
-<STRING_LITERAL_STATE>\\t       printf("字符串有制表");
-<STRING_LITERAL_STATE>\\\\      printf("字符串有反斜杠");
-<STRING_LITERAL_STATE>.         printf("字符串中有%c", yytext[0]);
+<STRING_LITERAL_STATE>\\\"      /* crb_add_string_literal('"'); */
+<STRING_LITERAL_STATE>\\n       /* crb_add_string_literal('\n'); */
+<STRING_LITERAL_STATE>\\t       /* crb_add_string_literal('\t'); */
+<STRING_LITERAL_STATE>\\\\      /* crb_add_string_literal('\\'); */
+<STRING_LITERAL_STATE>.         /* crb_add_string_literal(yytext[0]); */
 %%

@@ -1,12 +1,12 @@
 #ifndef PUBLIC_YAP_DEV_H_INCLUDED
 #define PUBLIC_YAP_DEV_H_INCLUDED
 
-type enum {
-	YAP_FALSE = 0,
-	YAP_TRUE = 1,
+typedef enum {
+    YAP_FALSE = 0,
+    YAP_TRUE = 1
 } YAP_Boolean;
 
-type struct {
+typedef struct {
 	char	*name;
 } YAP_NativePointerInfo;
 
@@ -17,7 +17,7 @@ typedef struct {
 	void					*pointer;	/* 值 */
 } YAP_NativePointer;
 
-type enum {
+typedef enum {
 	YAP_BOOLEAN_VALUE = 1,		/* 布尔型 */
 	YAP_INT_VALUE,				/* 整型 */
 	YAP_DOUBLE_VALUE,			/* 实数型 */
@@ -27,14 +27,16 @@ type enum {
 } YAP_ValueType;
 
 typedef struct {
-	YAP_ValueType type,		/* 值类型 */
-	union {					/* 值保存在联合体 */
-		YAP_Boolean 		boolean_value;
-		int 				int_value;
-		double 				double_value;
-		YAP_String 			*string_value;
-		YAP_NativePointer 	native_pointer;
-	} u;
+    YAP_ValueType       		type;
+    union {
+        YAP_Boolean     		boolean_value;
+        int             		int_value;
+        double          		double_value;
+        YAP_String      		*string_value;
+        YAP_NativePointer       native_pointer;
+    } u;
 } YAP_Value;
+
+typedef YAP_Value YAP_NativeFunctionProc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
 
 #endif
