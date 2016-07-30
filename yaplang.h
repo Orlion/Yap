@@ -1,6 +1,39 @@
 #ifndef PRIVATE_YAP_H_INCLUDED
 #define PRIVATE_YAP_H_INCLUDED
+#include <stdio.h>
+#include "MEM.h"
+#include "YAP.h"
 #include "YAP_dev.h"
+
+typedef enum {
+    VARIABLE_NOT_FOUND_ERR = 1,
+    FUNCTION_NOT_FOUND_ERR,
+    ARGUMENT_TOO_MANY_ERR,
+    ARGUMENT_TOO_FEW_ERR,
+    NOT_BOOLEAN_TYPE_ERR,
+    MINUS_OPERAND_TYPE_ERR,
+    BAD_OPERAND_TYPE_ERR,
+    NOT_BOOLEAN_OPERATOR_ERR,
+    FOPEN_ARGUMENT_TYPE_ERR,
+    FCLOSE_ARGUMENT_TYPE_ERR,
+    FGETS_ARGUMENT_TYPE_ERR,
+    FPUTS_ARGUMENT_TYPE_ERR,
+    NOT_NULL_OPERATOR_ERR,
+    DIVISION_BY_ZERO_ERR,
+    GLOBAL_VARIABLE_NOT_FOUND_ERR,
+    GLOBAL_STATEMENT_IN_TOPLEVEL_ERR,
+    BAD_OPERATOR_FOR_STRING_ERR,
+    RUNTIME_ERROR_COUNT_PLUS_1
+} RuntimeError;
+
+typedef enum {
+    INT_MESSAGE_ARGUMENT = 1,
+    DOUBLE_MESSAGE_ARGUMENT,
+    STRING_MESSAGE_ARGUMENT,
+    CHARACTER_MESSAGE_ARGUMENT,
+    POINTER_MESSAGE_ARGUMENT,
+    MESSAGE_ARGUMENT_END
+} MessageArgumentType;
 
 /* 表达式类型 */
 typedef enum {
@@ -166,7 +199,7 @@ typedef struct ParameterList_tag {
 /* 函数类型 */
 typedef enum {
 	YAP_FUNCTION_DEFINTION = 1,		/* 用户在yap中自定义函数 */
-	NATIVE_FINCTION_DEFINITION		/* yap的内置函数 */
+	NATIVE_FUNCTION_DEFINITION		/* yap的内置函数 */
 } FunctionDefinitionType;
 
 /* 函数 */
@@ -180,7 +213,7 @@ typedef struct FunctionDefinition_tag {
 		} yap_f;
 		struct {
 			YAP_NativeFunctionProc 	*proc;
-		} natice_f;
+		} native_f;
 	} u;
 	struct FunctionDefinition_tag 	*next;
 } FunctionDefinition;
@@ -193,7 +226,7 @@ typedef struct Variable_tag {
 } Variable;
 
 /* 解释器 */
-struct CRB_Interpreter_tag {
+struct YAP_Interpreter_tag {
     MEM_Storage         interpreter_storage;
     MEM_Storage         execute_storage;
     Variable            *variable;

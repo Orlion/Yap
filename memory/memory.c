@@ -49,3 +49,18 @@ void* MEM_malloc_func(MEM_Controller controller, char *filename, int line, size_
 
     return ptr;
 }
+
+void MEM_dump_blocks_func(MEM_Controller controller, FILE *fp)
+{
+#ifdef DEBUG
+    Header *pos;
+    int conter = 0;
+
+    for (pos = controller->block_header; pos; pos = pos->s.next) {
+        check_mark(pos);
+        fprintf(fp, "[%04d]%p******************\n", counter, (char*)pos + sizeof(Header));
+        fprintf(fp, "%s line %d size..%d\n", pos->s.filename, pos->s.line, pos->s.size);
+        counter++;
+    }
+#endif
+}

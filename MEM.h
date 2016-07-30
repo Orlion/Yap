@@ -1,6 +1,9 @@
 #ifndef PUBLIC_MEM_H
 #define PUBLIC_MEM_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 typedef enum {
     MEM_FAIL_AND_EXIT,
     MEM_FAIL_AND_RETURN
@@ -20,4 +23,7 @@ extern MEM_Controller mem_default_controller;
 #define MEM_open_storage(page_size) (MEM_open_storage_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, page_size))
 
 #define MEM_dump_blocks(fp) (MEM_dump_blocks_func(MEM_CURRENT_CONTROLLER, fp))
+
+typedef struct MEM_storage_tag MEM_Storage;
+
 #endif  /* PUBLIC_MEM_H */

@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>	
-#include "yap.h"
+#include "yaplang.h"
 #define YYDEBUG 1
 %}
 %union {

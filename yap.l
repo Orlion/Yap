@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include "yap.h"
+#include "yaplang.h"
 #include "y.tab.h"
 
 int

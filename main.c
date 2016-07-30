@@ -15,23 +15,16 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	extern int yyparse(void);
-    extern FILE *yyin;
     /* 创建解释器 */
-	CRB_Interpreter *interpreter = CRB_create_interpreter();	
+	YAP_Interpreter *interpreter = YAP_create_interpreter();
 	/* 词法分析与语法分析 */
-    CRB_compile(interpreter, fp);	
+    YAP_compile(interpreter, fp);
     /* 解释 */
-    CRB_interpret(interpreter);		
+    YAP_interpret(interpreter);
     /* dispose解释器 */
-    CRB_dispose_interpreter(interpreter);	
+    YAP_dispose_interpreter(interpreter);
     /* 打印 */
-    MEM_dump_blocks(stdout);	
-	yyin = fp;
-	if (yyparse()) {
-		fprintf(stderr, "[ERROR]\n");
-		exit(1);
-	}
+    MEM_dump_blocks(stdout);
 
 	return 0;	
 }

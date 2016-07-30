@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "memory.h"
 
 typedef union {
     long        l_dummy;

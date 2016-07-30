@@ -1,3 +1,11 @@
+#include "MEM.h"
+#include "yaplang.h"
+
+static void add_native_functions(YAP_Interpreter *inter)
+{
+	YAP_add_native_function(inter, "print", crb_nv_print_proc);
+}
+
 YAP_Interpreter *YAP_create_interpreter(void)
 {
     MEM_Storage storage;
@@ -18,7 +26,7 @@ YAP_Interpreter *YAP_create_interpreter(void)
     return interpreter;
 }
 
-void CRB_compile(CRB_Interpreter *interpreter, FILE *fp)
+void CRB_compile(YAP_Interpreter *interpreter, FILE *fp)
 {
     extern int yyparse(void);
     extern FILE *yyin;
@@ -32,4 +40,45 @@ void CRB_compile(CRB_Interpreter *interpreter, FILE *fp)
     }
 
     crb_reset_string_literal_buffer();
+}
+
+void YAP_interpret(YAP_Interpreter *interpreter)
+{
+    interpreter->execute_storage = MEM_open_storage(0);
+    crb_add_std_fp(interpreter);
+    crb_execute_statement_list(interpreter, NULL, interpreter->statement_list);
+}
+
+void
+CRB_dispose_interpreter(YAP_Interpreter *interpreter)
+{
+    release_global_strings(interpreter);
+
+    if (interpreter->execute_storage) {
+        MEM_dispose_storage(interpreter->execute_storage);
+    }
+
+    MEM_dispose_storage(interpreter->interpreter_storage);
+}
+
+void YAP_dispose_interpreter(YAP_Interpreter *interpreter)
+{
+    release_global_strings(interpreter);
+
+    if (interpreter->execute_storage) {
+        MEM_dispose_storage(interpreter->execute_storage);
+    }
+
+    MEM_dispose_storage(interpreter->interpreter_storage);
+}
+
+void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_NativeFunctionProc *proc)
+{
+	FunctionDefinition *fd;
+	fd->name = name;
+	fd->type = NATIVE_FUNCTION_DEFINITION;
+	fd->u.native_f.proc = proc;
+	fd->next = interpreter->function_list;
+
+	interpreter->function_list = fd;
 }
