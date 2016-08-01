@@ -225,7 +225,12 @@ typedef struct Variable_tag {
 	struct Variable_tag 	*next;
 } Variable;
 
-/* 解释器 */
+struct YAP_String_tag {
+    int         ref_count;
+    char        *string;
+    YAP_Boolean is_literal;
+};
+
 struct YAP_Interpreter_tag {
     MEM_Storage         interpreter_storage;
     MEM_Storage         execute_storage;
@@ -234,5 +239,11 @@ struct YAP_Interpreter_tag {
     StatementList       *statement_list;
     int                 current_line_number;
 };
+
+/* native.c */
+YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
+
+/* util.c */
+void yap_set_current_interpreter(YAP_Interpreter *inter);
 
 #endif /* PRIVATE_YAP_H_INCLUDED */

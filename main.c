@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "YAP.h"
 
 int main(int argc, char **argv)
 {
-	
 	if (argc != 2) {
 		fprintf(stderr, "[ERROR]:请输入文件名\n");
 		exit(1);
@@ -14,17 +14,16 @@ int main(int argc, char **argv)
 		fprintf(stderr, "[ERROR]:文件:%s不存在\n", argv[1]);
 		exit(1);
 	}
-
     /* 创建解释器 */
 	YAP_Interpreter *interpreter = YAP_create_interpreter();
 	/* 词法分析与语法分析 */
     YAP_compile(interpreter, fp);
     /* 解释 */
-    YAP_interpret(interpreter);
+    // YAP_interpret(interpreter);
     /* dispose解释器 */
-    YAP_dispose_interpreter(interpreter);
+    // YAP_dispose_interpreter(interpreter);
     /* 打印 */
-    MEM_dump_blocks(stdout);
+    // MEM_dump_blocks(stdout);
 
 	return 0;	
 }

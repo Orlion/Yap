@@ -12,6 +12,8 @@ typedef union {
 #define CELL_SIZE               (sizeof(Cell))
 #define DEFAULT_PAGE_SIZE       (1024)  /* cell num */
 
+#define larger(a, b) (((a) > (b)) ? (a) : (b))
+
 typedef struct MemoryPage_tag MemoryPage;
 typedef MemoryPage *MemoryPageList;
 
@@ -26,6 +28,36 @@ struct MEM_Storage_tag {
     MemoryPageList      page_list;
     int                 current_page_size;
 };
+
+void* MEM_storage_malloc_func(MEM_Controller controller, char *filename, int line, MEM_Storage storage, size_t size)
+{
+    int                 cell_num;
+    MemoryPage          *new_page;
+    void                *p;
+
+    cell_num = ((size - 1) / CELL_SIZE) + 1;
+
+    if (storage->page_list != NULL
+        && (storage->page_list->use_cell_num + cell_num
+            < storage->page_list->cell_num)) {
+        p = &(storage->page_list->cell[storage->page_list->use_cell_num]);
+        storage->page_list->use_cell_num += cell_num;
+    } else {
+        int     alloc_cell_num;
+
+        alloc_cell_num = larger(cell_num, storage->current_page_size);
+
+        new_page = MEM_malloc_func(controller, filename, line, sizeof(MemoryPage) + CELL_SIZE * (alloc_cell_num - 1));
+        new_page->next = storage->page_list;
+        new_page->cell_num = alloc_cell_num;
+        storage->page_list = new_page;
+
+        p = &(new_page->cell[0]);
+        new_page->use_cell_num = cell_num;
+    }
+
+    return p;
+}
 
 MEM_Storage MEM_open_storage_func(MEM_Controller controller, char *filename, int line, int page_size)
 {

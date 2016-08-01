@@ -1,5 +1,6 @@
 #ifndef PUBLIC_YAP_DEV_H_INCLUDED
 #define PUBLIC_YAP_DEV_H_INCLUDED
+#include "YAP.h"
 
 typedef enum {
     YAP_FALSE = 0,
