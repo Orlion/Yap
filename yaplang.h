@@ -240,6 +240,12 @@ struct YAP_Interpreter_tag {
     int                 current_line_number;
 };
 
+/* create.c */
+Block *yap_create_block(StatementList *statement_list);
+Statement *yap_create_continue_statement(void);
+Statement *yap_create_break_statement(void);
+Statement *yap_create_return_statement(Expression *expression);
+
 /* native.c */
 YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
 

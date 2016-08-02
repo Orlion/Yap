@@ -40,4 +40,6 @@ typedef struct {
 
 typedef YAP_Value YAP_NativeFunctionProc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
 
+void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_NativeFunctionProc *proc);
+
 #endif

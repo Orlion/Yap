@@ -2,18 +2,6 @@
 #define GLOBAL_VARIABLE_DEFINE
 #include "yaplang.h"
 
-void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_NativeFunctionProc *proc)
-{
-    FunctionDefinition *fd;
-    fd = yap_malloc(sizeof(FunctionDefinition));
-    fd->name = name;
-    fd->type = NATIVE_FUNCTION_DEFINITION;
-    fd->u.native_f.proc = proc;
-    fd->next = interpreter->function_list;
-
-    interpreter->function_list = fd;
-}
-
 static void add_native_functions(YAP_Interpreter *inter)
 {
 	YAP_add_native_function(inter, "print", yap_nv_print_proc);
@@ -53,4 +41,16 @@ void YAP_compile(YAP_Interpreter *interpreter, FILE *fp)
     }
 
     /* yap_reset_string_literal_buffer(); */
+}
+
+void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_NativeFunctionProc *proc)
+{
+    FunctionDefinition *fd;
+    fd = yap_malloc(sizeof(FunctionDefinition));
+    fd->name = name;
+    fd->type = NATIVE_FUNCTION_DEFINITION;
+    fd->u.native_f.proc = proc;
+    fd->next = interpreter->function_list;
+
+    interpreter->function_list = fd;
 }

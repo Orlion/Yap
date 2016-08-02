@@ -5,6 +5,7 @@ OBJS = \
   y.tab.o\
   main.o\
   interface.o\
+  create.o\
   util.o\
   native.o\
   ./memory/mem.o
@@ -29,6 +30,8 @@ lex.yy.o: lex.yy.c yaplang.h
 main.o: main.c
 	$(CC) -c -g $*.c $(INCLUDES)
 interface: interface.c
+	$(CC) -c -g $*.c $(INCLUDES)
+create: create.c
 	$(CC) -c -g $*.c $(INCLUDES)
 util: util.c
 	$(CC) -c -g $*.c $(INCLUDES)

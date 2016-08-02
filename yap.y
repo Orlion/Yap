@@ -213,19 +213,18 @@ primary_expression
         }
         | FALSE_T
         {
-            /* $$ = crb_create_boolean_expression(CRB_FALSE); */
+            $$ = yap_create_boolean_expression(YAP_FALSE);
         }
         | NULL_T
         {
 
-            /* $$ = crb_create_null_expression(); */
+            $$ = yap_create_null_expression();
         }
         ;
 statement
         : expression SEMICOLON
         {
-            /* a = 1; */
-            /* $$ = crb_create_expression_statement($1); */
+            $$ = yap_create_expression_statement($1);
         }
         | global_statement
         | if_statement
@@ -238,68 +237,61 @@ statement
 global_statement
         : GLOBAL_T identifier_list SEMICOLON
         {
-            /* global a,b; */
-            /* $$ = crb_create_global_statement($2); */
+            $$ = yap_create_global_statement($2);
         }
         ;
 identifier_list
         : IDENTIFIER
         {
-            /* a */
-            /* $$ = crb_create_global_identifier($1); */
+            $$ = yap_create_global_identifier($1);
         }
         | identifier_list COMMA IDENTIFIER
         {
-            /* a,b */
-            /* $$ = crb_chain_identifier($1, $3); */
+            $$ = yap_chain_identifier($1, $3);
         }
         ;
 if_statement
         : IF LP expression RP block
         {
-            /* if (a>1) {} */
-            /*$$ = crb_create_if_statement($3, $5, NULL, NULL);*/
+            $$ = yap_create_if_statement($3, $5, NULL, NULL);
         }
         | IF LP expression RP block ELSE block
         {
-            /* if (a>1) {} else {} */
-            /* $$ = crb_create_if_statement($3, $5, NULL, $7); */
+            $$ = yap_create_if_statement($3, $5, NULL, $7);
         }
         | IF LP expression RP block elseif_list
         {
-            /* if (a>1) {} elseif(){} elseif(){} */
-            /* $$ = crb_create_if_statement($3, $5, $6, NULL); */
+            $$ = yap_create_if_statement($3, $5, $6, NULL);
         }
         | IF LP expression RP block elseif_list ELSE block
         {
-            /* if (a>1) {} elseif(){} elseif(){}else{} */
-            /* $$ = crb_create_if_statement($3, $5, $6, $8); */
+            $$ = yap_create_if_statement($3, $5, $6, $8);
         }
         ;
 elseif_list
         : elseif
         | elseif_list elseif
         {
-            /* elseif(a>1){}elseif{}... */
+            $$ = yap_chain_elseif_list($1, $2);
         }
         ;
 elseif
         : ELSEIF LP expression RP block
         {
-            /* elseif(a>1){} */
+            $$ = yap_create_elseif($3, $5);
         }
         ;
 while_statement
         : WHILE LP expression RP block
         {
-            /* while (a>1) */
+            $$ = yap_create_while_statement($3, $5);
         }
         ;
 for_statement
         : FOR LP expression_opt SEMICOLON expression_opt SEMICOLON
           expression_opt RP block
         {
-            /* for (a=1; a<1; a++) {}*/
+            $$ = yap_create_for_statement($3, $5, $7, $9);
         }
         ;
 expression_opt
@@ -312,29 +304,29 @@ expression_opt
 return_statement
         : RETURN_T expression_opt SEMICOLON
         {
-            /* return a+1; */
+            $$ = yap_create_return_statement($2);
         }
         ;
 break_statement
         : BREAK SEMICOLON
         {
-            /* break; */
+            $$ = yap_create_break_statement();
         }
         ;
 continue_statement
         : CONTINUE SEMICOLON
         {
-            /* continue; */
+            $$ = yap_create_continue_statement();
         }
         ;
 block
         : LC statement_list RC
         {
-            /* {a = 1; b = 2;} */
+            $$ = yap_create_block($2);
         }
         | LC RC
         {
-            /* 空块 */
+            $$ = yap_create_block(NULL);
         }
         ;
 %%

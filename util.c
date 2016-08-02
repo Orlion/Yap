@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "yaplang.h"
 
 static YAP_Interpreter *st_current_interpreter;
