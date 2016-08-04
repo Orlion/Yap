@@ -333,13 +333,3 @@ ParameterList *yap_chain_parameter(ParameterList *list, char *identifier)
 	return list;
 }
 
-char *yap_create_identifier(char *str)
-{
-    char *new_str;
-
-    new_str = yap_malloc(strlen(str) + 1);
-
-    strcpy(new_str, str);
-
-    return new_str;
-}

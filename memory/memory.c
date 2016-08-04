@@ -189,3 +189,25 @@ void MEM_free_func(MEM_Controller controller, void *ptr)
 
     free(real_ptr);
 }
+
+void MEM_realloc_func(MEM_Controller controller, char *filename, int line, void *ptr, size_t size)
+{
+    void    *new_ptr;
+    size_t  alloc_size;
+    void    *real_ptr;
+
+    alloc_size = size;
+    real_ptr = ptr;
+
+    new_ptr = realloc(real_ptr, alloc_size);
+    if (new_ptr == NULL) {
+        if (ptr == NULL) {
+            error_handler(controller, filename, line, "realloc(malloc)");
+        } else {
+            error_handler(controller, filename, line, "realloc");
+            free(real_ptr);
+        }
+    }
+
+    return(new_ptr);
+}

@@ -24,6 +24,8 @@ extern MEM_Controller mem_default_controller;
 #define MEM_open_storage(page_size) (MEM_open_storage_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, page_size))
 #define MEM_storage_malloc(storage, size) (MEM_storage_malloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, storage, size))
 
+#define MEM_realloc(ptr, size) (MEM_realloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, ptr, size))
+
 #define MEM_dump_blocks(fp) (MEM_dump_blocks_func(MEM_CURRENT_CONTROLLER, fp))
 
 #define MEM_free(ptr) (MEM_free_func(MEM_CURRENT_CONTROLLER, ptr))

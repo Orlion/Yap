@@ -287,7 +287,6 @@ Statement *yap_create_expression_statement(Expression *expression);
 Statement *yap_create_return_statement(Expression *expression);
 Statement *yap_create_break_statement(void);
 Statement *yap_create_continue_statement(void);
-char *yap_create_identifier(char *str);
 
 /* native.c */
 YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
@@ -300,5 +299,11 @@ void *yap_malloc(size_t size);
 
 /* error.c */
 void crb_compile_error(CompileError id, ...);
+
+/* string.c */
+void yap_open_string_literal(void);
+void yap_add_string_literal(int letter);
+char *yap_create_identifier(char *str);
+char *yap_close_string_literal(void);
 
 #endif /* PRIVATE_YAP_H_INCLUDED */

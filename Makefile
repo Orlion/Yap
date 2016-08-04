@@ -8,6 +8,7 @@ OBJS = \
   create.o\
   util.o\
   native.o\
+  string.o\
   ./memory/mem.o
 CFLAGS = -c -g -Wall -Wswitch-enum -ansi -pedantic -DDEBUG
 INCLUDES = \
@@ -36,4 +37,6 @@ create: create.c
 util: util.c
 	$(CC) -c -g $*.c $(INCLUDES)
 native.o: native.c
+	$(CC) -c -g $*.c $(INCLUDES)
+string.o: string.c
 	$(CC) -c -g $*.c $(INCLUDES)
