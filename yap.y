@@ -48,103 +48,103 @@ definition_or_statement
         : function_definition
         | statement
         {
-            /* CRB_Interpreter *inter = crb_get_current_interpreter(); */
+            YAP_Interpreter *inter = yap_get_current_interpreter();
 
-            /* inter->statement_list = crb_chain_statement_list(inter->statement_list, $1); */
+            inter->statement_list = yap_chain_statement_list(inter->statement_list, $1);
         }
         ;
 function_definition
         : FUNCTION IDENTIFIER LP parameter_list RP block
         {
             /* 函数定义 function abc(def, ghi) {} */
-            /* crb_function_define($2, $4, $6); */
+            yap_function_define($2, $4, $6);
         }
         | FUNCTION IDENTIFIER LP RP block
         {
-            /* crb_function_define($2, NULL, $5); */
+            yap_function_define($2, NULL, $5);
         }
         ;
 parameter_list
         : IDENTIFIER
         {
-            /* $$ = crb_create_parameter($1); */
+            /* 形参 */
+            $$ = yap_create_parameter($1);
         }
         | parameter_list COMMA IDENTIFIER
         {
-            /* $$ = crb_chain_parameter($1, $3); */
+            $$ = yap_chain_parameter($1, $3);
         }
         ;
 argument_list
         : expression
         {
-            /* $$ = crb_create_argument_list($1); */
+            /* 实参 */
+            $$ = yap_create_argument_list($1);
         }
         | argument_list COMMA expression
         {
-            /* $$ = crb_chain_argument_list($1, $3); */
+            $$ = yap_chain_argument_list($1, $3);
         }
         ;
 statement_list
         : statement
         {
-            /* $$ = crb_create_statement_list($1); */
+            $$ = yap_create_statement_list($1);
         }
         | statement_list statement
         {
-            /* $$ = crb_chain_statement_list($1, $2); */
+            $$ = yap_chain_statement_list($1, $2);
         }
         ;
 expression
         : logical_or_expression
         | IDENTIFIER ASSIGN expression
         {
-            /* a || b */
-            /* a = a || b */
-            /* $$ = crb_create_assign_expression($1, $3); */
+            $$ = yap_create_assign_expression($1, $3);
         }
         ;
 logical_or_expression
         : logical_and_expression
         | logical_or_expression LOGICAL_OR logical_and_expression
         {
-            /* $$ = crb_create_binary_expression(LOGICAL_OR_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(LOGICAL_OR_EXPRESSION, $1, $3);
         }
         ;
 logical_and_expression
         : equality_expression
         | logical_and_expression LOGICAL_AND equality_expression
         {
-            /* $$ = crb_create_binary_expression(LOGICAL_AND_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(LOGICAL_AND_EXPRESSION, $1, $3);
         }
         ;
 equality_expression
         : relational_expression
         | equality_expression EQ relational_expression
         {
-            /* $$ = crb_create_binary_expression(EQ_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(EQ_EXPRESSION, $1, $3);
         }
         | equality_expression NE relational_expression
         {
-            /* $$ = crb_create_binary_expression(NE_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(NE_EXPRESSION, $1, $3);
         }
         ;
 relational_expression
         : additive_expression
         | relational_expression GT additive_expression
         {
-            /* $$ = crb_create_binary_expression(GT_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(GT_EXPRESSION, $1, $3);
         }
         | relational_expression GE additive_expression
         {
-            /* $$ = crb_create_binary_expression(GE_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(GE_EXPRESSION, $1, $3);
         }
         | relational_expression LT additive_expression
         {
-            /* $$ = crb_create_binary_expression(LT_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(LT_EXPRESSION, $1, $3);
         }
         | relational_expression LE additive_expression
         {
-            /* $$ = crb_create_binary_expression(LE_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(LE_EXPRESSION, $1, $3);
         }
         ;
 additive_expression
@@ -152,11 +152,11 @@ additive_expression
         | additive_expression ADD multiplicative_expression
         {
             /* 加减表达式 */
-            /* $$ = crb_create_binary_expression(ADD_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(ADD_EXPRESSION, $1, $3);
         }
         | additive_expression SUB multiplicative_expression
         {
-            /* $$ = crb_create_binary_expression(SUB_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(SUB_EXPRESSION, $1, $3);
         }
         ;
 multiplicative_expression
@@ -164,52 +164,47 @@ multiplicative_expression
         | multiplicative_expression MUL unary_expression
         {
             /* 乘除模表达式 */
-            /* $$ = crb_create_binary_expression(MUL_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(MUL_EXPRESSION, $1, $3);
         }
         | multiplicative_expression DIV unary_expression
         {
-            /* $$ = crb_create_binary_expression(DIV_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(DIV_EXPRESSION, $1, $3);
         }
         | multiplicative_expression MOD unary_expression
         {
-            /* $$ = crb_create_binary_expression(MOD_EXPRESSION, $1, $3); */
+            $$ = yap_create_binary_expression(MOD_EXPRESSION, $1, $3);
         }
         ;
 unary_expression
         : primary_expression
         | SUB unary_expression
         {
-            /* -(a=1) 一元表达式*/
-            /* $$ = crb_create_minus_expression($2); */
+            $$ = yap_create_minus_expression($2);
         }
         ;
 primary_expression
         : IDENTIFIER LP argument_list RP
         {
-            /* print(a,b) 基本表达式 */
-            /* $$ = crb_create_function_call_expression($1, $3); */
+            $$ = yap_create_function_call_expression($1, $3);
         }
         | IDENTIFIER LP RP
         {
-            /* print() */
-            /* $$ = crb_create_function_call_expression($1, NULL); */
+            $$ = yap_create_function_call_expression($1, NULL);
         }
         | LP expression RP
         {
-            /* (a=1) */
-            /* $$ = $2; */
+            $$ = $2;
         }
         | IDENTIFIER
         {
-            /* a */
-            /* $$ = crb_create_identifier_expression($1); */
+            $$ = yap_create_identifier_expression($1);
         }
         | INT_LITERAL
         | DOUBLE_LITERAL
         | STRING_LITERAL
         | TRUE_T
         {
-            /* $$ = crb_create_boolean_expression(CRB_TRUE); */
+            $$ = yap_create_boolean_expression(YAP_TRUE);
         }
         | FALSE_T
         {

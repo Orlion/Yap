@@ -10,6 +10,11 @@ yywrap(void)
     return 1;
 }
 
+static void increment_line_number(void)
+{
+    printf("换行------------%d\n", yap_get_current_interpreter()->current_line_number);
+    yap_get_current_interpreter()->current_line_number++;
+}
 %}
 %start COMMENT STRING_LITERAL_STATE
 %%
@@ -47,19 +52,19 @@ yywrap(void)
 <INITIAL>"/"            return DIV;
 <INITIAL>"%"            return MOD;
 <INITIAL>[A-Za-z_][A-Za-z_0-9]* {
-    /* yylval.identifier = crb_create_identifier(yytext); */
+    yylval.identifier = yap_create_identifier(yytext);
     return IDENTIFIER;
 }
 <INITIAL>([1-9][0-9]*)|"0" {
-    /* Expression  *expression = crb_alloc_expression(INT_EXPRESSION); */
-    /* sscanf(yytext, "%d", &expression->u.int_value); */
-    /* yylval.expression = expression; */
+    Expression  *expression = yap_alloc_expression(INT_EXPRESSION);
+    sscanf(yytext, "%d", &expression->u.int_value);
+    yylval.expression = expression;
     return INT_LITERAL;
 }
 <INITIAL>[0-9]+\.[0-9]+ {
-    /* Expression  *expression = crb_alloc_expression(DOUBLE_EXPRESSION); */
-    /* sscanf(yytext, "%lf", &expression->u.double_value); */
-    /* yylval.expression = expression; */
+    Expression  *expression = yap_alloc_expression(DOUBLE_EXPRESSION);
+    sscanf(yytext, "%lf", &expression->u.double_value);
+    yylval.expression = expression;
     return DOUBLE_LITERAL;
 }
 <INITIAL>\" {
@@ -67,7 +72,7 @@ yywrap(void)
     BEGIN STRING_LITERAL_STATE;
 }
 <INITIAL>[ \t] ;
-<INITIAL>\n { printf("换行\n");}
+<INITIAL>\n { increment_line_number();}
 <INITIAL>#     BEGIN COMMENT;
 <INITIAL>.      {
     char buf[10];
@@ -80,7 +85,7 @@ yywrap(void)
     }
 }
 <COMMENT>\n     {
-    /* increment_line_number(); */
+    increment_line_number();
     BEGIN INITIAL;
 }
 <COMMENT>.      ;

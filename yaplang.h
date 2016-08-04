@@ -6,6 +6,13 @@
 #include "YAP_dev.h"
 
 typedef enum {
+    PARSE_ERR = 1,
+    CHARACTER_INVALID_ERR,
+    FUNCTION_MULTIPLE_DEFINE_ERR,
+    COMPILE_ERROR_COUNT_PLUS_1
+} CompileError;
+
+typedef enum {
     VARIABLE_NOT_FOUND_ERR = 1,
     FUNCTION_NOT_FOUND_ERR,
     ARGUMENT_TOO_MANY_ERR,
@@ -133,7 +140,7 @@ typedef struct {
 typedef struct Elseif_tag {
     Expression  *condition;
     Block       *block;
-    struct Elsif_tag    *next;
+    struct Elseif_tag    *next;
 } Elseif;
 
 /* if语句 */
@@ -198,7 +205,7 @@ typedef struct ParameterList_tag {
 
 /* 函数类型 */
 typedef enum {
-	YAP_FUNCTION_DEFINTION = 1,		/* 用户在yap中自定义函数 */
+	YAP_FUNCTION_DEFINITION = 1,		/* 用户在yap中自定义函数 */
 	NATIVE_FUNCTION_DEFINITION		/* yap的内置函数 */
 } FunctionDefinitionType;
 
@@ -240,16 +247,58 @@ struct YAP_Interpreter_tag {
     int                 current_line_number;
 };
 
+typedef struct GlobalVariableRef_tag {
+    Variable    *variable;
+    struct GlobalVariableRef_tag *next;
+} GlobalVariableRef;
+
+typedef struct {
+    Variable    *variable;
+    GlobalVariableRef   *global_variable;
+} LocalEnvironment;
+
+
 /* create.c */
+void yap_function_define(char *identifier, ParameterList *parameter_list, Block *block);
+ParameterList *yap_create_parameter(char *identifier);
+ParameterList *yap_chain_parameter(ParameterList *list, char *identifier);
+ArgumentList *yap_create_argument_list(Expression *expression);
+ArgumentList *yap_chain_argument_list(ArgumentList *list, Expression *expr);
+StatementList *yap_create_statement_list(Statement *statement);
+StatementList *yap_chain_statement_list(StatementList *list, Statement *statement);
+Expression *yap_alloc_expression(ExpressionType type);
+Expression *yap_create_assign_expression(char *variable, Expression *operand);
+Expression *yap_create_binary_expression(ExpressionType operator, Expression *left, Expression *right);
+Expression *yap_create_minus_expression(Expression *operand);
+Expression *yap_create_identifier_expression(char *identifier);
+Expression *yap_create_function_call_expression(char *func_name, ArgumentList *argument);
+Expression *yap_create_boolean_expression(YAP_Boolean value);
+Expression *yap_create_null_expression(void);
+Statement *yap_create_global_statement(IdentifierList *identifier_list);
+IdentifierList *yap_create_global_identifier(char *identifier);
+IdentifierList *yap_chain_identifier(IdentifierList *list, char *identifier);
+Statement *yap_create_if_statement(Expression *condition, Block *then_block, Elseif *elseif_list, Block *else_block);
+Elseif *yap_chain_elseif_list(Elseif *list, Elseif *add);
+Elseif *yap_create_elseif(Expression *expr, Block *block);
+Statement *yap_create_while_statement(Expression *condition, Block *block);
+Statement *yap_create_for_statement(Expression *init, Expression *cond, Expression *post, Block *block);
 Block *yap_create_block(StatementList *statement_list);
-Statement *yap_create_continue_statement(void);
-Statement *yap_create_break_statement(void);
+Statement *yap_create_expression_statement(Expression *expression);
 Statement *yap_create_return_statement(Expression *expression);
+Statement *yap_create_break_statement(void);
+Statement *yap_create_continue_statement(void);
+char *yap_create_identifier(char *str);
 
 /* native.c */
 YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
 
 /* util.c */
 void yap_set_current_interpreter(YAP_Interpreter *inter);
+YAP_Interpreter *yap_get_current_interpreter(void);
+FunctionDefinition *yap_search_function(char *name);
+void *yap_malloc(size_t size);
+
+/* error.c */
+void crb_compile_error(CompileError id, ...);
 
 #endif /* PRIVATE_YAP_H_INCLUDED */
