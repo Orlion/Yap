@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "yaplang.h"
 
 void yap_function_define(char *identifier, ParameterList *parameter_list, Block *block)

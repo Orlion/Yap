@@ -12,7 +12,6 @@ yywrap(void)
 
 static void increment_line_number(void)
 {
-    printf("换行------------%d\n", yap_get_current_interpreter()->current_line_number);
     yap_get_current_interpreter()->current_line_number++;
 }
 %}
