@@ -39,3 +39,24 @@ FunctionDefinition *yap_search_function(char *name)
 
 	return pos;
 }
+
+void *yap_execute_malloc(YAP_Interpreter *inter, size_t size)
+{
+	void *p;
+
+	p = MEM_storage_malloc(inter->execute_storage, size);
+
+	return p;
+}
+
+void YAP_add_global_variable(YAP_Interpreter *inter, char *identifier, YAP_Value *value)
+{
+	Variable 	*new_variable;
+
+	new_variable = yap_execute_malloc(inter, sizeof(Variable));
+	new_variable->name = yap_execute_malloc(inter, strlen(identifier) + 1);
+	strcpy(new_variable->name, identifier);
+	new_variable->next = inter->variable;
+	inter->variable = new_variable;
+	new_variable->value = *value;
+}

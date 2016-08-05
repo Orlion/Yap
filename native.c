@@ -2,6 +2,12 @@
 #include "YAP_dev.h"
 #include "yaplang.h"
 
+#define NATIVE_LIB_NAME "yap.lang.file"
+
+static YAP_NativePointerInfo st_native_lib_info = {
+    NATIVE_LIB_NAME
+};
+
 YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args)
 {
     YAP_Value value;
@@ -38,4 +44,21 @@ YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Val
     }
 
     return value;
+}
+
+void yap_add_std_fp(YAP_Interpreter *inter)
+{
+    YAP_Value fp_value;
+
+    fp_value.type = YAP_NATIVE_POINTER_VALUE;
+    fp_value.u.native_pointer.info = &st_native_lib_info;
+
+    fp_value.u.native_pointer.pointer = stdin;
+    YAP_add_global_variable(inter, "STDID", &fp_value);
+
+    fp_value.u.native_pointer.pointer = stdout;
+    YAP_add_global_variable(inter, "STDOUT", &fp_value);
+
+    fp_value.u.native_pointer.pointer = stderr;
+    YAP_add_global_variable(inter, "STDERR", &fp_value);
 }

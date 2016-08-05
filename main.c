@@ -19,11 +19,9 @@ int main(int argc, char **argv)
 	/* 词法分析与语法分析 */
     YAP_compile(interpreter, fp);
     /* 解释 */
-    // YAP_interpret(interpreter);
+    /* YAP_interpret(interpreter); */
     /* dispose解释器 */
     // YAP_dispose_interpreter(interpreter);
-    /* 打印 */
-    // MEM_dump_blocks(stdout);
 
 	return 0;	
 }

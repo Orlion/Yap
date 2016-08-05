@@ -43,6 +43,15 @@ void YAP_compile(YAP_Interpreter *interpreter, FILE *fp)
     /* yap_reset_string_literal_buffer(); */
 }
 
+/*
+void YAP_interpret(YAP_Interpreter *interpreter)
+{
+    interpreter->execute_storage = MEM_open_storage(0);
+    crb_add_std_fp(interpreter);
+    crb_execute_statement_list(interpreter, NULL, interpreter->statement_list);
+}
+*/
+
 void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_NativeFunctionProc *proc)
 {
     FunctionDefinition *fd;

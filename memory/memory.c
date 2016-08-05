@@ -55,6 +55,7 @@ static void chain_block(MEM_Controller controller, Header *new_header)
     controller->block_header = new_header;
 }
 
+/*
 static void rechain_block(MEM_Controller controller, Header *header)
 {
     if (header->s.prev) {
@@ -66,6 +67,7 @@ static void rechain_block(MEM_Controller controller, Header *header)
         header->s.next->s.prev = header;
     }
 }
+*/
 
 static void unchain_block(MEM_Controller controller, Header *header)
 {
@@ -190,7 +192,7 @@ void MEM_free_func(MEM_Controller controller, void *ptr)
     free(real_ptr);
 }
 
-void MEM_realloc_func(MEM_Controller controller, char *filename, int line, void *ptr, size_t size)
+void *MEM_realloc_func(MEM_Controller controller, char *filename, int line, void *ptr, size_t size)
 {
     void    *new_ptr;
     size_t  alloc_size;
