@@ -257,6 +257,21 @@ typedef struct {
     GlobalVariableRef   *global_variable;
 } LocalEnvironment;
 
+typedef enum {
+    NORMAL_STATEMENT_RESULT = 1,
+    RETURN_STATEMENT_RESULT,
+    BREAK_STATEMENT_RESULT,
+    CONTINUE_STATEMENT_RESULT,
+    STATEMENT_RESULT_TYPE_COUNT_PLUS_1
+} StatementResultType;
+
+typedef struct {
+    StatementResultType type;
+    union {
+        YAP_Value       return_value;
+    } u;
+} StatementResult;
+
 
 /* create.c */
 void yap_function_define(char *identifier, ParameterList *parameter_list, Block *block);
@@ -305,5 +320,9 @@ void yap_open_string_literal(void);
 void yap_add_string_literal(int letter);
 char *yap_create_identifier(char *str);
 char *yap_close_string_literal(void);
+void yup_reset_string_literal_buffer(void);
+
+/* execute.c */
+StatementResult yap_execute_statement_list(YAP_Interpreter *inter, LocalEnvironment *env, StatementList *list);
 
 #endif /* PRIVATE_YAP_H_INCLUDED */

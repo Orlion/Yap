@@ -47,3 +47,11 @@ char *yap_close_string_literal(void)
 
 	return new_str;
 }
+
+void yap_reset_string_literal_buffer(void)
+{
+	MEM_free(st_string_literal_buffer);
+	st_string_literal_buffer = NULL;
+	st_string_literal_buffer_size = 0;
+	st_string_literal_buffer_alloc_size = 0;
+}
