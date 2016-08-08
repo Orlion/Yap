@@ -325,4 +325,13 @@ void yup_reset_string_literal_buffer(void);
 /* execute.c */
 StatementResult yap_execute_statement_list(YAP_Interpreter *inter, LocalEnvironment *env, StatementList *list);
 
+#define dkc_is_math_operator(operator) \
+  ((operator) == ADD_EXPRESSION || (operator) == SUB_EXPRESSION\
+   || (operator) == MUL_EXPRESSION || (operator) == DIV_EXPRESSION\
+   || (operator) == MOD_EXPRESSION)
+
+#define dkc_is_compare_operator(operator) \
+  ((operator) == EQ_EXPRESSION || (operator) == NE_EXPRESSION\
+   || (operator) == GT_EXPRESSION || (operator) == GE_EXPRESSION\
+   || (operator) == LT_EXPRESSION || (operator) == LE_EXPRESSION)
 #endif /* PRIVATE_YAP_H_INCLUDED */

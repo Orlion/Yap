@@ -48,42 +48,6 @@ static StatementResult execute_global_statement(YAP_Interpreter *inter, LocalEnv
     return result;
 }
 
-static StatementResult
-execute_if_statement(CRB_Interpreter *inter, LocalEnvironment *env,
-                     Statement *statement)
-{
-    StatementResult result;
-    CRB_Value   cond;
-
-    result.type = NORMAL_STATEMENT_RESULT;
-    cond = crb_eval_expression(inter, env, statement->u.if_s.condition);
-    if (cond.type != CRB_BOOLEAN_VALUE) {
-        crb_runtime_error(statement->u.if_s.condition->line_number,
-                          NOT_BOOLEAN_TYPE_ERR, MESSAGE_ARGUMENT_END);
-    }
-    DBG_assert(cond.type == CRB_BOOLEAN_VALUE, ("cond.type..%d", cond.type));
-
-    if (cond.u.boolean_value) {
-        result = crb_execute_statement_list(inter, env,
-                                            statement->u.if_s.then_block
-                                            ->statement_list);
-    } else {
-        CRB_Boolean elsif_executed;
-        result = execute_elsif(inter, env, statement->u.if_s.elsif_list,
-                               &elsif_executed);
-        if (result.type != NORMAL_STATEMENT_RESULT)
-            goto FUNC_END;
-        if (!elsif_executed && statement->u.if_s.else_block) {
-            result = crb_execute_statement_list(inter, env,
-                                                statement->u.if_s.else_block
-                                                ->statement_list);
-        }
-    }
-
-  FUNC_END:
-    return result;
-}
-
 static StatementResult execute_elseif(YAP_Interpreter *inter, LocalEnvironment *env, Elseif *elseif_list, YAP_Boolean *executed)
 {
     StatementResult result;
