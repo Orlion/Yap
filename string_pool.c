@@ -25,21 +25,6 @@ void yap_refer_string(YAP_String *str)
 	str->ref_count++;
 }
 
-void
-crb_release_string(CRB_String *str)
-{
-    str->ref_count--;
-
-    DBG_assert(str->ref_count >= 0, ("str->ref_count..%d\n",
-                                     str->ref_count));
-    if (str->ref_count == 0) {
-        if (!str->is_literal) {
-            MEM_free(str->string);
-        }
-        MEM_free(str);
-    }
-}
-
 void yap_release_string(YAP_String *str)
 {
 	str->ref_count--;

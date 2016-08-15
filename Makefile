@@ -1,4 +1,4 @@
-TARGET = Yap
+TARGET = crowbar
 CC=gcc
 OBJS = \
   lex.yy.o\
@@ -6,40 +6,46 @@ OBJS = \
   main.o\
   interface.o\
   create.o\
+  execute.o\
+  eval.o\
+  string.o\
+  string_pool.o\
   util.o\
   native.o\
-  string.o\
-  execute.o\
+  error.o\
+  error_message.o\
   ./memory/mem.o
 CFLAGS = -c -g -Wall -Wswitch-enum -ansi -pedantic -DDEBUG
 INCLUDES = \
 
 $(TARGET):$(OBJS)
 	cd ./memory; $(MAKE);
-	$(CC) $(OBJS) -o Yap -lm
+	$(CC) $(OBJS) -o $@ -lm
 clean:
-	rm -f *.o lex.yy.c y.tab.c y.output y.tab.h *~
-y.tab.h : yap.y
-	bison --yacc -dv yap.y
-y.tab.c : yap.y
-	bison --yacc -dv yap.y
-lex.yy.c : yap.l yap.y y.tab.h
-	flex yap.l
-y.tab.o: y.tab.c yaplang.h
+	rm -f *.o lex.yy.c y.tab.c y.tab.h *~
+y.tab.h : crowbar.y
+	bison --yacc -dv crowbar.y
+y.tab.c : crowbar.y
+	bison --yacc -dv crowbar.y
+lex.yy.c : crowbar.l crowbar.y y.tab.h
+	flex crowbar.l
+y.tab.o: y.tab.c crowbar.h MEM.h
 	$(CC) -c -g $*.c $(INCLUDES)
-lex.yy.o: lex.yy.c yaplang.h
+lex.yy.o: lex.yy.c crowbar.h MEM.h
 	$(CC) -c -g $*.c $(INCLUDES)
-main.o: main.c
-	$(CC) -c -g $*.c $(INCLUDES)
-interface: interface.c
-	$(CC) -c -g $*.c $(INCLUDES)
-create: create.c
-	$(CC) -c -g $*.c $(INCLUDES)
-util: util.c
-	$(CC) -c -g $*.c $(INCLUDES)
-native.o: native.c
-	$(CC) -c -g $*.c $(INCLUDES)
-string.o: string.c
-	$(CC) -c -g $*.c $(INCLUDES)
-execute.o: execute.c
-	$(CC) -c -g $*.c $(INCLUDES)
+.c.o:
+	$(CC) $(CFLAGS) $*.c $(INCLUDES)
+./memory/mem.o:
+	cd ./memory; $(MAKE);
+############################################################
+create.o: create.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+error.o: error.c MEM.h crowbar.h CRB.h CRB_dev.h
+error_message.o: error_message.c crowbar.h MEM.h CRB.h CRB_dev.h
+eval.o: eval.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+execute.o: execute.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+interface.o: interface.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+main.o: main.c CRB.h MEM.h
+native.o: native.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+string.o: string.c MEM.h crowbar.h CRB.h CRB_dev.h
+string_pool.o: string_pool.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+util.o: util.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h

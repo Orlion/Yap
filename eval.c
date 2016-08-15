@@ -336,6 +336,153 @@ YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *e
     return result;
 }
 
+static YAP_Value eval_logical_and_or_expression(YAP_Interpreter *inter, LocalEnvironment *env, ExpressionType operator, Expression *left, Expression *right)
+{
+    YAP_Value left_val;
+    YAP_Value right_val;
+    YAP_Value result;
+
+    result.type = YAP_BOOLEAN_VALUE;
+    left_val = eval_expression(inter, env, left);
+
+    if (left_val.type != YAP_BOOLEAN_VALUE) {
+        crb_runtime_error(left->line_number, NOT_BOOLEAN_TYPE_ERR, MESSAGE_ARGUMENT_END);
+    }
+    if (operator == LOGICAL_AND_EXPRESSION) {
+        if (!left_val.i.boolean_value) {
+            result.u.boolean_value = YAP_FALSE;
+            return result;
+        }
+    } else if (operator == LOGICAL_OR_EXPRESSION) {
+        if (left_val.i.boolean_value) {
+            result.u.boolean_value = YAP_TRUE;
+            return result;
+        }
+    } else {
+        DBG_panic(("bad operator..%d\n", operator));
+    }
+
+    right_val = eval_expression(inter, env, right);
+    if (right_val.type != YAP_BOOLEAN_VALUE) {
+        crb_runtime_error(right->line_number, NOT_BOOLEAN_TYPE_ERR, MESSAGE_ARGUMENT_END);
+    }
+    result.u.boolean_value = right_val.u.boolean_value;
+
+    return result;
+}
+
+YAP_Value yap_eval_minus_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *operand)
+{
+    YAP_Value operand_val;
+    YAP_Value result;
+
+    operand_val = eval_expression(inter, env, operand);
+    if (operand_val.type == YAP_INT_VALUE) {
+        result.type = YAP_INT_VALUE;
+        result.u.int_value = -operand_val.i.int_value;
+    } else if (operand_val.type == YAP_DOUBLE_VALUE) {
+        result.type = YAP_DOUBLE_VALUE;
+        result.u.double_value = -operand_val.u.double_value;
+    } else {
+        crb_runtime_error(operand->line_number, MINUS_OPERAND_TYPE_ERR, MESSAGE_ARGUMENT_END);
+    }
+
+    return result;
+}
+
+static YAP_Value call_yap_function(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr, FunctionDefinition *func)
+{
+    YAP_Value value;
+    StatementResult result;
+    ArgumentList *arg_p;
+    ParameterList *param_p;
+    LocalEnvironment *local_env;
+
+    local_env = alloc_local_environment();
+
+    for (arg_p = expr->u.function_call_expression.argument, param_p = func->u.yap_f.parameter; arg_p; arg_p = arg_p->next, param_p = param_p->next) {
+        YAP_Value arg_val;
+        if (param_p == NULL) {
+            crb_runtime_error(expr->line_number, ARGUMENT_TOO_MANY_ERR, MESSAGE_ARGUMENT_END);
+        }
+        arg_val = eval_expression(inter, env, arg_p->expression);
+        yap_add_local_variable(local_env, param_p->name, &arg_val);
+    }
+    if (param_p) {
+        crb_runtime_error(expr->line_number, ARGUMENT_TOO_FEW_ERR, MESSAGE_ARGUMENT_END);
+    }
+    result = yap_execute_statement_list(inter, local_env, func->i.yap_f.block->statement_list);
+
+    if (result.type == RETURN_STATEMENT_RESULT) {
+        value = result.u.return_value;
+    } else {
+        value.type = YAP_NULL_VALUE;
+    }
+    dispose_local_environment(inter, local_env);
+
+    return value;
+}
+
+static YAP_Value eval_function_call_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr)
+{
+    YAP_Value value;
+    FunctionDefinition *func;
+
+    char *identifier = expr->u.function_call_expression.identifier;
+
+    func = yap_search_function(identifier);
+    if (func == NULL) {
+
+    }
+    switch (func->type) {
+    case YAP_FUNCTION_DEFINITION:
+        value = call_yap_function(inter, env, expr, func);
+        break;
+    case NATIVE_FUNCTION_DEFINITION:
+        value = call_native_function(inter, env, expr, func->u.native_f.proc);
+        break;
+    default:
+        DBG_panic(("bad case..%d\n", func->type));
+    }
+
+    return value;
+}
+
+static YAP_Value call_native_function(YPA_Interpreter *inter, LocalEnvironment *env, Expression *expr, YAP_NativeFunctionProc *proc)
+{
+    YAP_Value value;
+    int arg_count;
+    ArgumentList *arg_p;
+    YAP_Value *args;
+    int i;
+
+    for (arg_count = 0, arg_p = expr->u.function_call_expression.argument; arg_p; arg_p = arg_p = arg_p->next) {
+        arg_count++;
+    }
+
+    args = MEM_malloc(sizeof(YAP_Value) *arg_count);
+
+    for (arg_p = expr->u.function_call_expression.argument, i = 0; arg_p; arg_p = arg_p->next, i++) {
+        args[i] = eval_expression(inter, env, arg_p->expression);
+    }
+    value = proc(inter, arg_count, args);
+    for (i = 0; i < arg_count; i++) {
+        release_if_string(&args[i]);
+    }
+    MEM_free(args);
+
+    return value;
+}
+
+static YAP_Value eval_null_expression(void)
+{
+    YAP_Value v;
+
+    v.type = YAP_NULL_VALUE;
+
+    return v;
+}
+
 YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment env, Expression *expr)
 {
     YAP_Value v;
