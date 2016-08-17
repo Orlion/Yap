@@ -1,4 +1,4 @@
-TARGET = crowbar
+TARGET = yap
 CC=gcc
 OBJS = \
   lex.yy.o\
@@ -23,29 +23,29 @@ $(TARGET):$(OBJS)
 	$(CC) $(OBJS) -o $@ -lm
 clean:
 	rm -f *.o lex.yy.c y.tab.c y.tab.h *~
-y.tab.h : crowbar.y
-	bison --yacc -dv crowbar.y
-y.tab.c : crowbar.y
-	bison --yacc -dv crowbar.y
-lex.yy.c : crowbar.l crowbar.y y.tab.h
-	flex crowbar.l
-y.tab.o: y.tab.c crowbar.h MEM.h
+y.tab.h : yap.y
+	bison --yacc -dv yap.y
+y.tab.c : yap.y
+	bison --yacc -dv yap.y
+lex.yy.c : yap.l yap.y y.tab.h
+	flex yap.l
+y.tab.o: y.tab.c yaplang.h MEM.h
 	$(CC) -c -g $*.c $(INCLUDES)
-lex.yy.o: lex.yy.c crowbar.h MEM.h
+lex.yy.o: lex.yy.c yaplang.h MEM.h
 	$(CC) -c -g $*.c $(INCLUDES)
 .c.o:
 	$(CC) $(CFLAGS) $*.c $(INCLUDES)
 ./memory/mem.o:
 	cd ./memory; $(MAKE);
 ############################################################
-create.o: create.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
-error.o: error.c MEM.h crowbar.h CRB.h CRB_dev.h
-error_message.o: error_message.c crowbar.h MEM.h CRB.h CRB_dev.h
-eval.o: eval.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
-execute.o: execute.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
-interface.o: interface.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
-main.o: main.c CRB.h MEM.h
-native.o: native.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
-string.o: string.c MEM.h crowbar.h CRB.h CRB_dev.h
-string_pool.o: string_pool.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
-util.o: util.c MEM.h DBG.h crowbar.h CRB.h CRB_dev.h
+create.o: create.c MEM.h yaplang.h YAP.h YAP_dev.h
+error.o: error.c MEM.h yaplang.h YAP.h YAP_dev.h
+error_message.o: error_message.c yaplang.h MEM.h YAP.h YAP_dev.h
+eval.o: eval.c MEM.h yaplang.h YAP.h YAP_dev.h
+execute.o: execute.c MEM.h yaplang.h YAP.h YAP_dev.h
+interface.o: interface.c MEM.h yaplang.h YAP.h YAP_dev.h
+main.o: main.c YAP.h MEM.h
+native.o: native.c MEM.h yaplang.h YAP.h YAP_dev.h
+string.o: string.c MEM.h yaplang.h YAP.h YAP_dev.h
+string_pool.o: string_pool.c MEM.h yaplang.h YAP.h YAP_dev.h
+util.o: util.c MEM.h yaplang.h YAP.h YAP_dev.h

@@ -21,14 +21,23 @@ extern MEM_Controller mem_default_controller;
 #define MEM_CURRENT_CONTROLLER mem_default_controller
 #endif /* MEM_CONTROLLER */
 
+MEM_Storage MEM_open_storage_func(MEM_Controller controller, char *filename, int line, int page_size);
+
 #define MEM_open_storage(page_size) (MEM_open_storage_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, page_size))
+
+void *MEM_storage_malloc_func(MEM_Controller controller, char *filename, int line, MEM_Storage storage, size_t size);
+
 #define MEM_storage_malloc(storage, size) (MEM_storage_malloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, storage, size))
 
 #define MEM_realloc(ptr, size) (MEM_realloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, ptr, size))
 
 #define MEM_dump_blocks(fp) (MEM_dump_blocks_func(MEM_CURRENT_CONTROLLER, fp))
 
+void MEM_free_func(MEM_Controller controller, void *ptr);
+
 #define MEM_free(ptr) (MEM_free_func(MEM_CURRENT_CONTROLLER, ptr))
+
+void *MEM_malloc_func(MEM_Controller controller, char *filename, int line, size_t size);
 
 #define MEM_malloc(size) (MEM_malloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, size))
 

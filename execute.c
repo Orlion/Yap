@@ -1,11 +1,13 @@
+#include <string.h>
 #include "yaplang.h"
+#include "MEM.h"
 
 static StatementResult execute_expression_statement(YAP_Interpreter *inter, LocalEnvironment *env, Statement *statement)
 {
-    StatemetnResult result;
+    StatementResult result;
     YAP_Value v;
 
-    result.type = NORMAL_STATEMNET_RESULT;
+    result.type = NORMAL_STATEMENT_RESULT;
 
     v = yap_eval_expression(inter, env, statement->u.expression_s);
     if (v.type == YAP_STRING_VALUE) {
@@ -23,9 +25,9 @@ static StatementResult execute_global_statement(YAP_Interpreter *inter, LocalEnv
     result.type = NORMAL_STATEMENT_RESULT;
 
     if (env == NULL) {
-        yap_runtime_error(statement->line_number, GLOBAL_STATEMENT_INT_TOPLEVEL_ERR, MESSAGE_ARGUMENT_END);
+        yap_runtime_error(statement->line_number, "不能在函数外使用global语句");
     }
-    for (pos = statement->u.global_s.identifier_list; pos; pos->next) {
+    for (pos = statement->u.global_s.identifier_list; pos; pos = pos->next) {
         GlobalVariableRef *ref_pos;
         GlobalVariableRef *new_ref;
         Variable *variable;
@@ -35,7 +37,9 @@ static StatementResult execute_global_statement(YAP_Interpreter *inter, LocalEnv
         }
         variable = yap_search_global_variable(inter, pos->name);
         if (variable == NULL) {
-            yap_runtime_error(statement->line_number, GLOBAL_VARIABLE_NOT_FOUND_ERR, STRING_MESSAGE_ARGUMENT, "name", pos->name, MESSAGE_ARGUMENT_END);
+            char msg[100];
+            sprintf(msg, "未找到全局变量%s", pos->name);
+            yap_runtime_error(statement->line_number, msg);
         }
         new_ref = MEM_malloc(sizeof(GlobalVariableRef));
         new_ref->variable = variable;
@@ -56,10 +60,10 @@ static StatementResult execute_elseif(YAP_Interpreter *inter, LocalEnvironment *
 
     *executed = YAP_FALSE;
     result.type = NORMAL_STATEMENT_RESULT;
-    for (pos = elseif_list; pos; pos->next) {
-        cond = yap_eval_expression(inter, env, pos->condtion);
+    for (pos = elseif_list; pos; pos = pos->next) {
+        cond = yap_eval_expression(inter, env, pos->condition);
         if (cond.type != YAP_BOOLEAN_VALUE) {
-            yap_runtime_error();
+            yap_runtime_error(pos->condition->line_number, "条件必须为布尔值");
         }
         if (cond.u.boolean_value) {
             result = yap_execute_statement_list(inter, env, pos->block->statement_list);
@@ -80,11 +84,11 @@ static StatementResult execute_if_statement(YAP_Interpreter *inter, LocalEnviron
     result.type = NORMAL_STATEMENT_RESULT;
     cond = yap_eval_expression(inter, env, statement->u.if_s.condition);
     if (cond.type != YAP_BOOLEAN_VALUE) {
-        yap_runtime_error();
+        yap_runtime_error(statement->u.if_s.condition->line_number, "条件必须为布尔值");
     }
 
-    if (cond.u.boolena_value) {
-        result = yap_execute_statement_list(inter, env, statment->u.if_s.then_block->statement_list);
+    if (cond.u.boolean_value) {
+        result = yap_execute_statement_list(inter, env, statement->u.if_s.then_block->statement_list);
     } else {
         YAP_Boolean elseif_executed;
         result = execute_elseif(inter, env, statement->u.if_s.elseif_list, &elseif_executed);
@@ -98,16 +102,16 @@ static StatementResult execute_if_statement(YAP_Interpreter *inter, LocalEnviron
     return result;
 }
 
-static Statement execute_while_statement(YAP_Interpreter *inter, LocalEnvironment *env, Statement *statement)
+static StatementResult execute_while_statement(YAP_Interpreter *inter, LocalEnvironment *env, Statement *statement)
 {
-    StatementReuslt result;
+    StatementResult result;
     YAP_Value cond;
 
     result.type = NORMAL_STATEMENT_RESULT;
     for (;;) {
         cond = yap_eval_expression(inter, env, statement->u.while_s.condition);
         if (cond.type != YAP_BOOLEAN_VALUE) {
-            yap_runtime_error();
+            yap_runtime_error(statement->u.while_s.condition->line_number, "条件必须为布尔值");
         }
 
         if (!cond.u.boolean_value) 
@@ -139,7 +143,7 @@ static StatementResult execute_for_statement(YAP_Interpreter *inter, LocalEnviro
         if (statement->u.for_s.condition) {
             cond = yap_eval_expression(inter, env, statement->u.for_s.condition);
             if (cond.type != YAP_BOOLEAN_VALUE) {
-                yap_runtime_error();
+                yap_runtime_error(statement->u.for_s.condition->line_number, "条件必须为布尔值");
             }
 
             if (!cond.u.boolean_value)
@@ -149,7 +153,7 @@ static StatementResult execute_for_statement(YAP_Interpreter *inter, LocalEnviro
         if (result.type == RETURN_STATEMENT_RESULT) {
             break;
         } else if (result.type == BREAK_STATEMENT_RESULT) {
-            result.type == NORMAL_STATEMENT_RESULT;
+            result.type = NORMAL_STATEMENT_RESULT;
             break;
         }
 
@@ -157,6 +161,8 @@ static StatementResult execute_for_statement(YAP_Interpreter *inter, LocalEnviro
             yap_eval_expression(inter, env, statement->u.for_s.post);
         }
     }
+
+    return result;
 }
 
 static StatementResult execute_return_statement(YAP_Interpreter *inter, LocalEnvironment *env, Statement *statement)
@@ -173,9 +179,9 @@ static StatementResult execute_return_statement(YAP_Interpreter *inter, LocalEnv
     return result;
 }
 
-static StatementResult executed_break_statement(YAP_Interpreter *inter, LocalEnvironment *env, Statement *statement)
+static StatementResult execute_break_statement(YAP_Interpreter *inter, LocalEnvironment *env, Statement *statement)
 {
-    StatementResult reuslt;
+    StatementResult result;
 
     result.type = BREAK_STATEMENT_RESULT;
 

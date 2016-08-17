@@ -1,7 +1,8 @@
-#include "yap.h"
+#include <string.h>
+#include "yaplang.h"
 #include "MEM.h"
 
-static YAP_Value eval_boolean_expression(YAP_Value boolean_value)
+static YAP_Value eval_boolean_expression(YAP_Boolean boolean_value)
 {
     YAP_Value v;
 
@@ -44,7 +45,7 @@ static YAP_Value eval_string_expression(YAP_Interpreter *inter, char *string_val
 static void release_if_string(YAP_Value *v)
 {
     if (v->type == YAP_STRING_VALUE) {
-        yap_release_string(v->i.string_value);
+        yap_release_string(v->u.string_value);
     }
 }
 
@@ -64,7 +65,7 @@ static Variable *search_global_variable_from_env(YAP_Interpreter *inter, LocalEn
     }
 
     for (pos = env->global_variable; pos; pos = pos->next) {
-        if (!strcmp(pos->variable_name, name)) {
+        if (!strcmp(pos->variable->name, name)) {
             return pos->variable;
         }
     }
@@ -96,7 +97,7 @@ static YAP_Value eval_identifier_expression(YAP_Interpreter *inter, LocalEnviron
     return v;
 }
 
-static YAP_VALUE eval_assign_expression(YAP_Interpreter *inter, LocalEnvironment *env, char *identifier, Expression *expression)
+static YAP_Value eval_assign_expression(YAP_Interpreter *inter, LocalEnvironment *env, char *identifier, Expression *expression)
 {
     YAP_Value v;
     Variable  *left;
@@ -256,6 +257,8 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
         yap_runtime_error(line_number, msg);
     }
 }
+
+static YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr);
 
 YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *env, ExpressionType operator, Expression *left, Expression *right)
 {
@@ -454,7 +457,7 @@ static YAP_Value call_yap_function(YAP_Interpreter *inter, LocalEnvironment *env
     if (param_p) {
         yap_runtime_error(expr->line_number, "传入的参数数量少于函数定义");
     }
-    result = yap_execute_statement_list(inter, local_env, func->i.yap_f.block->statement_list);
+    result = yap_execute_statement_list(inter, local_env, func->u.yap_f.block->statement_list);
 
     if (result.type == RETURN_STATEMENT_RESULT) {
         value = result.u.return_value;
@@ -462,33 +465,6 @@ static YAP_Value call_yap_function(YAP_Interpreter *inter, LocalEnvironment *env
         value.type = YAP_NULL_VALUE;
     }
     dispose_local_environment(inter, local_env);
-
-    return value;
-}
-
-static YAP_Value eval_function_call_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr)
-{
-    YAP_Value value;
-    FunctionDefinition *func;
-
-    char *identifier = expr->u.function_call_expression.identifier;
-
-    func = yap_search_function(identifier);
-    if (func == NULL) {
-
-    }
-    switch (func->type) {
-    case YAP_FUNCTION_DEFINITION:
-        value = call_yap_function(inter, env, expr, func);
-        break;
-    case NATIVE_FUNCTION_DEFINITION:
-        value = call_native_function(inter, env, expr, func->u.native_f.proc);
-        break;
-    default:
-        char msg[100];
-        sprintf(msg, "错误的函数类型-%d", func->type);
-        yap_bug_error(msg);
-    }
 
     return value;
 }
@@ -519,6 +495,33 @@ static YAP_Value call_native_function(YPA_Interpreter *inter, LocalEnvironment *
     return value;
 }
 
+static YAP_Value eval_function_call_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr)
+{
+    YAP_Value value;
+    FunctionDefinition *func;
+    char msg[100];
+
+    char *identifier = expr->u.function_call_expression.identifier;
+
+    func = yap_search_function(identifier);
+    if (func == NULL) {
+
+    }
+    switch (func->type) {
+    case YAP_FUNCTION_DEFINITION:
+        value = call_yap_function(inter, env, expr, func);
+        break;
+    case NATIVE_FUNCTION_DEFINITION:
+        value = call_native_function(inter, env, expr, func->u.native_f.proc);
+        break;
+    default:
+        sprintf(msg, "错误的函数类型-%d", func->type);
+        yap_bug_error(msg);
+    }
+
+    return value;
+}
+
 static YAP_Value eval_null_expression(void)
 {
     YAP_Value v;
@@ -528,7 +531,7 @@ static YAP_Value eval_null_expression(void)
     return v;
 }
 
-YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment env, Expression *expr)
+YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr)
 {
     YAP_Value v;
     switch (expr->type) {
@@ -542,7 +545,7 @@ YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment env, Expressi
         v = eval_double_expression(expr->u.double_value);
         break;
     case STRING_EXPRESSION:
-        v = eval_string_expression(expr->u.string_value);
+        v = eval_string_expression(inter, expr->u.string_value);
         break;
     case IDENTIFIER_EXPRESSION:
         v = eval_identifier_expression(inter, env, expr);
@@ -561,11 +564,11 @@ YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment env, Expressi
     case GE_EXPRESSION:
     case LT_EXPRESSION:
     case LE_EXPRESSION:
-        v = yap_eval_binary_expression(inter, env, expr->type, expr->u.binary_expression.left, expr->u.bianry_expression.right);
+        v = yap_eval_binary_expression(inter, env, expr->type, expr->u.binary_expression.left, expr->u.binary_expression.right);
         break;
     case LOGICAL_AND_EXPRESSION:
     case LOGICAL_OR_EXPRESSION:
-        v = eval_logical_and_or_expression(inter, env, expr->type, expr->u.binary_expression.left, expr->u.bianry_expression.right);
+        v = eval_logical_and_or_expression(inter, env, expr->type, expr->u.binary_expression.left, expr->u.binary_expression.right);
         break;
     case MINUS_EXPRESSION:
         v = yap_eval_minus_expression(inter, env, expr->u.minus_expression);

@@ -305,24 +305,35 @@ Statement *yap_create_continue_statement(void);
 
 /* native.c */
 YAP_Value yap_nv_print_proc(YAP_Interpreter *interpreter, int arg_count, YAP_Value *args);
+void yap_add_std_fp(YAP_Interpreter *inter);
 
 /* util.c */
 void yap_set_current_interpreter(YAP_Interpreter *inter);
 YAP_Interpreter *yap_get_current_interpreter(void);
 FunctionDefinition *yap_search_function(char *name);
 void *yap_malloc(size_t size);
+Variable *yap_search_global_variable(YAP_Interpreter *inter, char *identifier);
+void yap_add_local_variable(LocalEnvironment *env, char *identifier, YAP_Value *value);
+Variable *yap_search_local_variable(LocalEnvironment *env, char *identifier);
 
 /* error.c */
 void yap_compile_error(char *msg);
-
-void yap_runtime_error(char *msg);
+void yap_runtime_error(int line_number, char *msg);
+void yap_bug_error(char *msg);
 
 /* string.c */
 void yap_open_string_literal(void);
 void yap_add_string_literal(int letter);
 char *yap_create_identifier(char *str);
 char *yap_close_string_literal(void);
-void yup_reset_string_literal_buffer(void);
+void yap_reset_string_literal_buffer(void);
+
+/* string_pool.c */
+YAP_String *yap_literal_to_yap_string(YAP_Interpreter *inter, char *str);
+void yap_refer_string(YAP_String *str);
+void yap_release_string(YAP_String *str);
+YAP_String *yap_search_yap_string(YAP_Interpreter *inter, char *str);
+YAP_String *yap_create_yap_string(YAP_Interpreter *inter, char *str);
 
 /* execute.c */
 StatementResult yap_execute_statement_list(YAP_Interpreter *inter, LocalEnvironment *env, StatementList *list);
@@ -336,4 +347,10 @@ StatementResult yap_execute_statement_list(YAP_Interpreter *inter, LocalEnvironm
   ((operator) == EQ_EXPRESSION || (operator) == NE_EXPRESSION\
    || (operator) == GT_EXPRESSION || (operator) == GE_EXPRESSION\
    || (operator) == LT_EXPRESSION || (operator) == LE_EXPRESSION)
+
+/* eval.c */
+YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *env, ExpressionType operator, Expression *left, Expression *right);
+YAP_Value yap_eval_minus_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *operand);
+YAP_Value yap_eval_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr);
+
 #endif /* PRIVATE_YAP_H_INCLUDED */
