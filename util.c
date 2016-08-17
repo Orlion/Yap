@@ -71,3 +71,32 @@ void yap_add_global_variable(LocalEnvironment *env, char *identifier, YAP_Value 
 	new_variable->next = env->variable;
 	env->variable = new_variable;
 }
+
+Variable *yap_search_local_variable(LocalEnvironment *env, char *identifier)
+{
+	Variable *pos;
+
+	if (env == NULL)
+		return NULL;
+	for (pos = env->variable; pos; pos = pos->next) {
+		if (!strcmp(pos->name, identifier))
+			break;
+	}
+
+	if (pos == NULL) {
+		return NULL;
+	} else {
+		return pos;
+	}
+}
+
+void yap_add_local_variable(LocalEnvironment *env, char *identifier, YAP_Value *value)
+{
+	Variable *new_variable;
+
+	new_variable = MEM_malloc(sizeof(Variable));
+	new_variable->name = identifier;
+	new_variable->value = *value;
+	new_variable->next = env->variable;
+	env->variable = new_variable;
+}

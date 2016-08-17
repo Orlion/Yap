@@ -30,4 +30,6 @@ extern MEM_Controller mem_default_controller;
 
 #define MEM_free(ptr) (MEM_free_func(MEM_CURRENT_CONTROLLER, ptr))
 
+#define MEM_malloc(size) (MEM_malloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, size))
+
 #endif  /* PUBLIC_MEM_H */

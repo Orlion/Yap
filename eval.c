@@ -82,7 +82,9 @@ static YAP_Value eval_identifier_expression(YAP_Interpreter *inter, LocalEnviron
         if (vp != NULL) {
             v = vp->value;
         } else {
-            yap_runtime_error();
+            char msg[100];
+            sprintf(msg, "没找到变量-%s", expr->u.identifier);
+            yap_runtime_error(msg);
         }
     }
 
@@ -120,12 +122,14 @@ static YAP_VALUE eval_assign_expression(YAP_Interpreter *inter, LocalEnvironment
 
 static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int left, int right, YAP_Value *result, int line_number)
 {
+    char msg[100];
+    sprintf(msg, "未知的ExpressionType-%d", operator);
     if (dkc_is_math_operator(operator)) {
         result->type = YAP_INT_VALUE;
     } else if (dkc_is_compare_operator(operator)) {
         result->type = YAP_BOOLEAN_VALUE;
     } else {
-        DBG_panic(("operator..%d\n", operator));
+        yap_runtime_error(msg);
     }
 
     switch (operator) {
@@ -135,7 +139,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
     case STRING_EXPRESSION:     /* FALLTHRU */
     case IDENTIFIER_EXPRESSION: /* FALLTHRU */
     case ASSIGN_EXPRESSION:
-        DBG_panic(("bad case...%d", operator));
+        yap_runtime_error(msg);
         break;
     case ADD_EXPRESSION:
         result->u.int_value = left + right;
@@ -154,7 +158,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
         break;
     case LOGICAL_AND_EXPRESSION:        /* FALLTHRU */
     case LOGICAL_OR_EXPRESSION:
-        DBG_panic(("bad case...%d", operator));
+        yap_runtime_error(msg);
         break;
     case EQ_EXPRESSION:
         result->u.boolean_value = left == right;
@@ -179,18 +183,20 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
     case NULL_EXPRESSION:               /* FALLTHRU */
     case EXPRESSION_TYPE_COUNT_PLUS_1:  /* FALLTHRU */
     default:
-        DBG_panic(("bad case...%d", operator));
+        yap_runtime_error(msg);
     }
 }
 
 static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, double left, double right, CRB_Value *result, int line_number)
 {
+    char msg[100];
+    sprintf(msg, "未知的ExpressionType-%d", operator);
     if (dkc_is_math_operator(operator)) {
-        result->type = CRB_DOUBLE_VALUE;
+        result->type = YAP_DOUBLE_VALUE;
     } else if (dkc_is_compare_operator(operator)) {
-        result->type = CRB_BOOLEAN_VALUE;
+        result->type = YAP_BOOLEAN_VALUE;
     } else {
-        DBG_panic(("operator..%d\n", operator));
+        yap_runtime_error(msg);
     }
 
     switch (operator) {
@@ -200,7 +206,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
     case STRING_EXPRESSION:     /* FALLTHRU */
     case IDENTIFIER_EXPRESSION: /* FALLTHRU */
     case ASSIGN_EXPRESSION:
-        DBG_panic(("bad case...%d", operator));
+        yap_runtime_error(msg);
         break;
     case ADD_EXPRESSION:
         result->u.double_value = left + right;
@@ -219,7 +225,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
         break;
     case LOGICAL_AND_EXPRESSION:        /* FALLTHRU */
     case LOGICAL_OR_EXPRESSION:
-        DBG_panic(("bad case...%d", operator));
+        yap_runtime_error(msg);
         break;
     case EQ_EXPRESSION:
         result->u.int_value = left == right;
@@ -244,7 +250,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
     case NULL_EXPRESSION:               /* FALLTHRU */
     case EXPRESSION_TYPE_COUNT_PLUS_1:  /* FALLTHRU */
     default:
-        DBG_panic(("bad default...%d", operator));
+        yap_runtime_error(msg);
     }
 }
 
@@ -257,80 +263,78 @@ YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *e
     left_val = eval_expression(inter, env, left);
     right_val = eval_expression(inter, env, right);
 
-    if (left_val.type == CRB_INT_VALUE && right_val.type == CRB_INT_VALUE) {
+    if (left_val.type == YAP_INT_VALUE && right_val.type == YAP_INT_VALUE) {
         eval_binary_int(inter, operator, left_val.u.int_value, right_val.u.int_value, &result, left->line_number);
-    } else if (left_val.type == CRB_DOUBLE_VALUE && right_val.type == CRB_DOUBLE_VALUE) {
+    } else if (left_val.type == YAP_DOUBLE_VALUE && right_val.type == YAP_DOUBLE_VALUE) {
         eval_binary_double(inter, operator, left_val.u.double_value, right_val.u.double_value, &result, left->line_number);
-    } else if (left_val.type == CRB_INT_VALUE
-               && right_val.type == CRB_DOUBLE_VALUE) {
+    } else if (left_val.type == YAP_INT_VALUE
+               && right_val.type == YAP_DOUBLE_VALUE) {
         left_val.u.double_value = left_val.u.int_value;
         eval_binary_double(inter, operator,
                            left_val.u.double_value, right_val.u.double_value,
                            &result, left->line_number);
-    } else if (left_val.type == CRB_DOUBLE_VALUE
-               && right_val.type == CRB_INT_VALUE) {
+    } else if (left_val.type == YAP_DOUBLE_VALUE
+               && right_val.type == YAP_INT_VALUE) {
         right_val.u.double_value = right_val.u.int_value;
         eval_binary_double(inter, operator,
                            left_val.u.double_value, right_val.u.double_value,
                            &result, left->line_number);
-    } else if (left_val.type == CRB_BOOLEAN_VALUE
-               && right_val.type == CRB_BOOLEAN_VALUE) {
-        result.type = CRB_BOOLEAN_VALUE;
+    } else if (left_val.type == YAP_BOOLEAN_VALUE
+               && right_val.type == YAP_BOOLEAN_VALUE) {
+        result.type = YAP_BOOLEAN_VALUE;
         result.u.boolean_value
             = eval_binary_boolean(inter, operator,
                                   left_val.u.boolean_value,
                                   right_val.u.boolean_value,
                                   left->line_number);
-    } else if (left_val.type == CRB_STRING_VALUE
+    } else if (left_val.type == YAP_STRING_VALUE
                && operator == ADD_EXPRESSION) {
         char    buf[LINE_BUF_SIZE];
-        CRB_String *right_str;
+        YAP_String *right_str;
 
-        if (right_val.type == CRB_INT_VALUE) {
+        if (right_val.type == YAP_INT_VALUE) {
             sprintf(buf, "%d", right_val.u.int_value);
-            right_str = crb_create_crowbar_string(inter, MEM_strdup(buf));
+            right_str = yap_create_yap_string(inter, MEM_strdup(buf));
         } else if (right_val.type == CRB_DOUBLE_VALUE) {
             sprintf(buf, "%f", right_val.u.double_value);
-            right_str = crb_create_crowbar_string(inter, MEM_strdup(buf));
+            right_str = yap_create_yap_string(inter, MEM_strdup(buf));
         } else if (right_val.type == CRB_BOOLEAN_VALUE) {
             if (right_val.u.boolean_value) {
-                right_str = crb_create_crowbar_string(inter,
+                right_str = yap_create_yap_string(inter,
                                                       MEM_strdup("true"));
             } else {
-                right_str = crb_create_crowbar_string(inter,
+                right_str = yap_create_yap_string(inter,
                                                       MEM_strdup("false"));
             }
-        } else if (right_val.type == CRB_STRING_VALUE) {
+        } else if (right_val.type == YAP_STRING_VALUE) {
             right_str = right_val.u.string_value;
-        } else if (right_val.type == CRB_NATIVE_POINTER_VALUE) {
+        } else if (right_val.type == YAP_NATIVE_POINTER_VALUE) {
             sprintf(buf, "(%s:%p)",
                     right_val.u.native_pointer.info->name,
                     right_val.u.native_pointer.pointer);
-            right_str = crb_create_crowbar_string(inter, MEM_strdup(buf));
-        } else if (right_val.type == CRB_NULL_VALUE) {
-            right_str = crb_create_crowbar_string(inter, MEM_strdup("null"));
+            right_str = yap_create_yap_string(inter, MEM_strdup(buf));
+        } else if (right_val.type == YAP_NULL_VALUE) {
+            right_str = yap_create_yap_string(inter, MEM_strdup("null"));
         } 
-        result.type = CRB_STRING_VALUE;
+        result.type = YAP_STRING_VALUE;
         result.u.string_value = chain_string(inter,
                                              left_val.u.string_value,
                                              right_str);
-    } else if (left_val.type == CRB_STRING_VALUE
-               && right_val.type == CRB_STRING_VALUE) {
-        result.type = CRB_BOOLEAN_VALUE;
+    } else if (left_val.type == YAP_STRING_VALUE
+               && right_val.type == YAP_STRING_VALUE) {
+        result.type = YAP_BOOLEAN_VALUE;
         result.u.boolean_value
             = eval_compare_string(operator, &left_val, &right_val,
                                   left->line_number);
-    } else if (left_val.type == CRB_NULL_VALUE
-               || right_val.type == CRB_NULL_VALUE) {
-        result.type = CRB_BOOLEAN_VALUE;
+    } else if (left_val.type == YAP_NULL_VALUE
+               || right_val.type == YAP_NULL_VALUE) {
+        result.type = YAP_BOOLEAN_VALUE;
         result.u.boolean_value
             = eval_binary_null(inter, operator, &left_val, &right_val,
                                left->line_number);
     } else {
-        char *op_str = crb_get_operator_string(operator);
-        crb_runtime_error(left->line_number, BAD_OPERAND_TYPE_ERR,
-                          STRING_MESSAGE_ARGUMENT, "operator", op_str,
-                          MESSAGE_ARGUMENT_END);
+        char *op_str = yap_get_operator_string(operator);
+        yap_runtime_error("");
     }
 
     return result;

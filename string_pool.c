@@ -1,3 +1,6 @@
+#include "crowbar.h"
+#include "MEM.h"
+
 static YAP_String *alloc_yap_string(YAP_Interpreter *inter, char *str, YAP_Boolean is_literal)
 {
 	YAP_String *ret;

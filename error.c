@@ -1,16 +1,15 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-void yap_compile_error(CompileError id, ...)
+void yap_compile_error(char *msg)
 {
 	line_number = yap_get_current_interpreter()->current_line_number;
-	fprintf(stderr, "%3d:%s\n", line_number, "编译错误");
+	fprintf(stderr, "[%s]:%s,在%3d行\n", "编译期错误", line_number, *msg);
 	exit(1);
 }
 
-void yap_runtime_error(char *msg)
+void yap_runtime_error(int line_number, char *msg)
 {
-	line_number = yap_get_current_interpreter()->current_line_number;
-	fprintf(stderr, "[%s]:%s,在%3d行\n", "运行错误", line_number, *msg);
+	fprintf(stderr, "[%s]:%s,在%3d行\n", "运行期错误", line_number, *msg);
 	exit(1);
 }

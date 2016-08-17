@@ -313,7 +313,9 @@ FunctionDefinition *yap_search_function(char *name);
 void *yap_malloc(size_t size);
 
 /* error.c */
-void crb_compile_error(CompileError id, ...);
+void yap_compile_error(char *msg);
+
+void yap_runtime_error(char *msg);
 
 /* string.c */
 void yap_open_string_literal(void);
