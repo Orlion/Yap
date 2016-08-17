@@ -1,3 +1,6 @@
+#include "yap.h"
+#include "MEM.h"
+
 static YAP_Value eval_boolean_expression(YAP_Value boolean_value)
 {
     YAP_Value v;
@@ -84,7 +87,7 @@ static YAP_Value eval_identifier_expression(YAP_Interpreter *inter, LocalEnviron
         } else {
             char msg[100];
             sprintf(msg, "没找到变量-%s", expr->u.identifier);
-            yap_runtime_error(msg);
+            yap_runtime_error(expr->line_number, msg);
         }
     }
 
@@ -129,7 +132,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
     } else if (dkc_is_compare_operator(operator)) {
         result->type = YAP_BOOLEAN_VALUE;
     } else {
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
     }
 
     switch (operator) {
@@ -139,7 +142,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
     case STRING_EXPRESSION:     /* FALLTHRU */
     case IDENTIFIER_EXPRESSION: /* FALLTHRU */
     case ASSIGN_EXPRESSION:
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number,msg);
         break;
     case ADD_EXPRESSION:
         result->u.int_value = left + right;
@@ -158,7 +161,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
         break;
     case LOGICAL_AND_EXPRESSION:        /* FALLTHRU */
     case LOGICAL_OR_EXPRESSION:
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
         break;
     case EQ_EXPRESSION:
         result->u.boolean_value = left == right;
@@ -183,7 +186,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
     case NULL_EXPRESSION:               /* FALLTHRU */
     case EXPRESSION_TYPE_COUNT_PLUS_1:  /* FALLTHRU */
     default:
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
     }
 }
 
@@ -196,7 +199,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
     } else if (dkc_is_compare_operator(operator)) {
         result->type = YAP_BOOLEAN_VALUE;
     } else {
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
     }
 
     switch (operator) {
@@ -206,7 +209,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
     case STRING_EXPRESSION:     /* FALLTHRU */
     case IDENTIFIER_EXPRESSION: /* FALLTHRU */
     case ASSIGN_EXPRESSION:
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
         break;
     case ADD_EXPRESSION:
         result->u.double_value = left + right;
@@ -225,7 +228,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
         break;
     case LOGICAL_AND_EXPRESSION:        /* FALLTHRU */
     case LOGICAL_OR_EXPRESSION:
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
         break;
     case EQ_EXPRESSION:
         result->u.int_value = left == right;
@@ -250,7 +253,7 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
     case NULL_EXPRESSION:               /* FALLTHRU */
     case EXPRESSION_TYPE_COUNT_PLUS_1:  /* FALLTHRU */
     default:
-        yap_runtime_error(msg);
+        yap_runtime_error(line_number, msg);
     }
 }
 
@@ -334,7 +337,9 @@ YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *e
                                left->line_number);
     } else {
         char *op_str = yap_get_operator_string(operator);
-        yap_runtime_error("");
+        char msg[100];
+        sprintf(msg, "未定义ExpressionType-%s", op_str);
+        yap_runtime_error(left->line_number, msg);
     }
 
     return result;
@@ -342,6 +347,7 @@ YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *e
 
 static YAP_Value eval_logical_and_or_expression(YAP_Interpreter *inter, LocalEnvironment *env, ExpressionType operator, Expression *left, Expression *right)
 {
+    char msg[100];
     YAP_Value left_val;
     YAP_Value right_val;
     YAP_Value result;
@@ -350,7 +356,7 @@ static YAP_Value eval_logical_and_or_expression(YAP_Interpreter *inter, LocalEnv
     left_val = eval_expression(inter, env, left);
 
     if (left_val.type != YAP_BOOLEAN_VALUE) {
-        crb_runtime_error(left->line_number, NOT_BOOLEAN_TYPE_ERR, MESSAGE_ARGUMENT_END);
+        yap_runtime_error(left->line_number, "左值类型必须为布尔型");
     }
     if (operator == LOGICAL_AND_EXPRESSION) {
         if (!left_val.i.boolean_value) {
@@ -363,12 +369,13 @@ static YAP_Value eval_logical_and_or_expression(YAP_Interpreter *inter, LocalEnv
             return result;
         }
     } else {
-        DBG_panic(("bad operator..%d\n", operator));
+        sprintf(msg, "逻辑运算存在不合适的ExpressionType-%d", operator);
+        yap_bug_error(msg);
     }
 
     right_val = eval_expression(inter, env, right);
     if (right_val.type != YAP_BOOLEAN_VALUE) {
-        crb_runtime_error(right->line_number, NOT_BOOLEAN_TYPE_ERR, MESSAGE_ARGUMENT_END);
+         yap_runtime_error(right->line_number, "左值类型必须为布尔型");
     }
     result.u.boolean_value = right_val.u.boolean_value;
 
@@ -388,10 +395,42 @@ YAP_Value yap_eval_minus_expression(YAP_Interpreter *inter, LocalEnvironment *en
         result.type = YAP_DOUBLE_VALUE;
         result.u.double_value = -operand_val.u.double_value;
     } else {
-        crb_runtime_error(operand->line_number, MINUS_OPERAND_TYPE_ERR, MESSAGE_ARGUMENT_END);
+        yap_runtime_error(operand->line_number, "表达式必须是int型或double型");
     }
 
     return result;
+}
+
+static LocalEnvironment *alloc_local_environment()
+{
+    LocalEnvironment *ret;
+
+    ret = MEM_malloc(sizeof(LocalEnvironment));
+    ret->variable = NULL;
+    ret->global_variable = NULL;
+
+    return ret;
+}
+
+static void dispose_local_environment(YAP_Interpreter *inter, LocalEnvironment *env)
+{
+    while (env->variable) {
+        Variable        *temp;
+        temp = env->variable;
+        if (env->variable->value.type == YAP_STRING_VALUE) {
+            yap_release_string(env->variable->value.u.string_value);
+        }
+        env->variable = temp->next;
+        MEM_free(temp);
+    }
+    while (env->global_variable) {
+        GlobalVariableRef *ref;
+        ref = env->global_variable;
+        env->global_variable = ref->next;
+        MEM_free(ref);
+    }
+
+    MEM_free(env);
 }
 
 static YAP_Value call_yap_function(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr, FunctionDefinition *func)
@@ -407,13 +446,13 @@ static YAP_Value call_yap_function(YAP_Interpreter *inter, LocalEnvironment *env
     for (arg_p = expr->u.function_call_expression.argument, param_p = func->u.yap_f.parameter; arg_p; arg_p = arg_p->next, param_p = param_p->next) {
         YAP_Value arg_val;
         if (param_p == NULL) {
-            crb_runtime_error(expr->line_number, ARGUMENT_TOO_MANY_ERR, MESSAGE_ARGUMENT_END);
+            yap_runtime_error(expr->line_number, "传入的参数数量多于函数定义");
         }
         arg_val = eval_expression(inter, env, arg_p->expression);
         yap_add_local_variable(local_env, param_p->name, &arg_val);
     }
     if (param_p) {
-        crb_runtime_error(expr->line_number, ARGUMENT_TOO_FEW_ERR, MESSAGE_ARGUMENT_END);
+        yap_runtime_error(expr->line_number, "传入的参数数量少于函数定义");
     }
     result = yap_execute_statement_list(inter, local_env, func->i.yap_f.block->statement_list);
 
@@ -446,7 +485,9 @@ static YAP_Value eval_function_call_expression(YAP_Interpreter *inter, LocalEnvi
         value = call_native_function(inter, env, expr, func->u.native_f.proc);
         break;
     default:
-        DBG_panic(("bad case..%d\n", func->type));
+        char msg[100];
+        sprintf(msg, "错误的函数类型-%d", func->type);
+        yap_bug_error(msg);
     }
 
     return value;
