@@ -75,3 +75,23 @@ void *MEM_realloc_func(MEM_Controller controller, char *filename, int line, void
 
     return(new_ptr);
 }
+
+char *MEM_strdup_func(MEM_Controller controller, char *filename, int line, char *str)
+{
+    char        *ptr;
+    int         size;
+    size_t      alloc_size;
+
+    size = strlen(str) + 1;
+
+    alloc_size = size;
+
+    ptr = malloc(alloc_size);
+    if (ptr == NULL) {
+        error_handler(controller, filename, line, "strdup");
+    }
+
+    strcpy(ptr, str);
+
+    return(ptr);
+}

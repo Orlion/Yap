@@ -13,7 +13,6 @@ OBJS = \
   util.o\
   native.o\
   error.o\
-  error_message.o\
   ./memory/mem.o
 CFLAGS = -c -g -Wall -Wswitch-enum -ansi -pedantic -DDEBUG
 INCLUDES = \
@@ -40,7 +39,6 @@ lex.yy.o: lex.yy.c yaplang.h MEM.h
 ############################################################
 create.o: create.c MEM.h yaplang.h YAP.h YAP_dev.h
 error.o: error.c MEM.h yaplang.h YAP.h YAP_dev.h
-error_message.o: error_message.c yaplang.h MEM.h YAP.h YAP_dev.h
 eval.o: eval.c MEM.h yaplang.h YAP.h YAP_dev.h
 execute.o: execute.c MEM.h yaplang.h YAP.h YAP_dev.h
 interface.o: interface.c MEM.h yaplang.h YAP.h YAP_dev.h

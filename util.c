@@ -100,3 +100,86 @@ void yap_add_local_variable(LocalEnvironment *env, char *identifier, YAP_Value *
 	new_variable->next = env->variable;
 	env->variable = new_variable;
 }
+
+char *yap_get_operator_string(ExpressionType type)
+{
+    char        *str;
+    char msg[100];
+
+    switch (type) {
+    case BOOLEAN_EXPRESSION:    /* FALLTHRU */
+    case INT_EXPRESSION:        /* FALLTHRU */
+    case DOUBLE_EXPRESSION:     /* FALLTHRU */
+    case STRING_EXPRESSION:     /* FALLTHRU */
+    case IDENTIFIER_EXPRESSION:
+    	sprintf(msg, "不存在ExpressionType-%d", type);
+        yap_bug_error(msg);
+        break;
+    case ASSIGN_EXPRESSION:
+        str = "=";
+        break;
+    case ADD_EXPRESSION:
+        str = "+";
+        break;
+    case SUB_EXPRESSION:
+        str = "-";
+        break;
+    case MUL_EXPRESSION:
+        str = "*";
+        break;
+    case DIV_EXPRESSION:
+        str = "/";
+        break;
+    case MOD_EXPRESSION:
+        str = "%";
+        break;
+    case LOGICAL_AND_EXPRESSION:
+        str = "&&";
+        break;
+    case LOGICAL_OR_EXPRESSION:
+        str = "||";
+        break;
+    case EQ_EXPRESSION:
+        str = "==";
+        break;
+    case NE_EXPRESSION:
+        str = "!=";
+        break;
+    case GT_EXPRESSION:
+        str = "<";
+        break;
+    case GE_EXPRESSION:
+        str = "<=";
+        break;
+    case LT_EXPRESSION:
+        str = ">";
+        break;
+    case LE_EXPRESSION:
+        str = ">=";
+        break;
+    case MINUS_EXPRESSION:
+        str = "-";
+        break;
+    case FUNCTION_CALL_EXPRESSION:  /* FALLTHRU */
+    case NULL_EXPRESSION:  /* FALLTHRU */
+    case EXPRESSION_TYPE_COUNT_PLUS_1:
+    default:
+        sprintf(msg, "不存在ExpressionType-%d", type);
+        yap_bug_error(msg);
+    }
+
+    return str;
+}
+
+Variable *yap_search_global_variable(YAP_Interpreter *inter, char *identifier)
+{
+    Variable    *pos;
+
+    for (pos = inter->variable; pos; pos = pos->next) {
+        if (!strcmp(pos->name, identifier))
+            return pos;
+    }
+
+    return NULL;
+}
+

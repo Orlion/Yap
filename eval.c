@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include "yaplang.h"
 #include "MEM.h"
 
@@ -97,6 +98,8 @@ static YAP_Value eval_identifier_expression(YAP_Interpreter *inter, LocalEnviron
     return v;
 }
 
+static YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr);
+
 static YAP_Value eval_assign_expression(YAP_Interpreter *inter, LocalEnvironment *env, char *identifier, Expression *expression)
 {
     YAP_Value v;
@@ -111,7 +114,7 @@ static YAP_Value eval_assign_expression(YAP_Interpreter *inter, LocalEnvironment
     if (left != NULL) {
         release_if_string(&left->value);
         left->value = v;
-        refer->if_string(&v);
+        refer_if_string(&v);
     } else {
         if (env != NULL) {
             yap_add_local_variable(env, identifier, &v);
@@ -191,7 +194,7 @@ static void eval_binary_int(YAP_Interpreter *inter, ExpressionType operator, int
     }
 }
 
-static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, double left, double right, CRB_Value *result, int line_number)
+static void eval_binary_double(YAP_Interpreter *inter, ExpressionType operator, double left, double right, YAP_Value *result, int line_number)
 {
     char msg[100];
     sprintf(msg, "未知的ExpressionType-%d", operator);
@@ -258,7 +261,92 @@ static void eval_binary_double(CRB_Interpreter *inter, ExpressionType operator, 
     }
 }
 
-static YAP_Value eval_expression(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr);
+static YAP_Boolean eval_binary_boolean(YAP_Interpreter *inter, ExpressionType operator, YAP_Boolean left, YAP_Boolean right, int line_number)
+{
+    YAP_Boolean result;
+
+    if (operator == EQ_EXPRESSION) {
+        result = left == right;
+    } else if (operator == NE_EXPRESSION) {
+        result = left != right;
+    } else {
+        char *op_str = yap_get_operator_string(operator);
+        char msg[100];
+        sprintf(msg, "错误的ExpressionType-%s", op_str);
+        yap_runtime_error(line_number, msg);
+    }
+
+    return result;
+}
+
+static YAP_Boolean eval_compare_string(ExpressionType operator, YAP_Value *left, YAP_Value *right, int line_number)
+{
+    YAP_Boolean result;
+    int cmp;
+
+    cmp = strcmp(left->u.string_value->string, right->u.string_value->string);
+
+    if (operator == EQ_EXPRESSION) {
+        result = (cmp == 0);
+    } else if (operator == NE_EXPRESSION) {
+        result = (cmp != 0);
+    } else if (operator == GT_EXPRESSION) {
+        result = (cmp > 0);
+    } else if (operator == GE_EXPRESSION) {
+        result = (cmp >= 0);
+    } else if (operator == LT_EXPRESSION) {
+        result = (cmp < 0);
+    } else if (operator == LE_EXPRESSION) {
+        result = (cmp <= 0);
+    } else {
+        char *op_str = yap_get_operator_string(operator);
+        char msg[100];
+        sprintf(msg, "错误的ExpressionType-%s", op_str);
+        yap_runtime_error(line_number, msg);
+    }
+    yap_release_string(left->u.string_value);
+    yap_release_string(right->u.string_value);
+
+    return result;
+}
+
+static YAP_Boolean eval_binary_null(YAP_Interpreter *inter, ExpressionType operator,
+                 YAP_Value *left, YAP_Value *right, int line_number)
+{
+    YAP_Boolean result;
+
+    if (operator == EQ_EXPRESSION) {
+        result = left->type == YAP_NULL_VALUE && right->type == YAP_NULL_VALUE;
+    } else if (operator == NE_EXPRESSION) {
+        result =  !(left->type == YAP_NULL_VALUE && right->type == YAP_NULL_VALUE);
+    } else {
+        char *op_str = yap_get_operator_string(operator);
+        char msg[100];
+        sprintf(msg, "错误的ExpressionType-%s", op_str);
+        yap_runtime_error(line_number, msg);
+    }
+    release_if_string(left);
+    release_if_string(right);
+
+    return result;
+}
+
+YAP_String *chain_string(YAP_Interpreter *inter, YAP_String *left, YAP_String *right)
+{
+    int len;
+    char *str;
+    YAP_String *ret;
+
+    len = strlen(left->string) + strlen(right->string);
+    str = MEM_malloc(len + 1);
+    strcpy(str, left->string);
+    strcat(str, right->string);
+    ret = yap_create_yap_string(inter, str);
+    yap_release_string(left);
+    yap_release_string(right);
+
+    return ret;
+}
 
 YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *env, ExpressionType operator, Expression *left, Expression *right)
 {
@@ -293,18 +381,17 @@ YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *e
                                   left_val.u.boolean_value,
                                   right_val.u.boolean_value,
                                   left->line_number);
-    } else if (left_val.type == YAP_STRING_VALUE
-               && operator == ADD_EXPRESSION) {
+    } else if (left_val.type == YAP_STRING_VALUE && operator == ADD_EXPRESSION) {
         char    buf[LINE_BUF_SIZE];
         YAP_String *right_str;
 
         if (right_val.type == YAP_INT_VALUE) {
             sprintf(buf, "%d", right_val.u.int_value);
             right_str = yap_create_yap_string(inter, MEM_strdup(buf));
-        } else if (right_val.type == CRB_DOUBLE_VALUE) {
+        } else if (right_val.type == YAP_DOUBLE_VALUE) {
             sprintf(buf, "%f", right_val.u.double_value);
             right_str = yap_create_yap_string(inter, MEM_strdup(buf));
-        } else if (right_val.type == CRB_BOOLEAN_VALUE) {
+        } else if (right_val.type == YAP_BOOLEAN_VALUE) {
             if (right_val.u.boolean_value) {
                 right_str = yap_create_yap_string(inter,
                                                       MEM_strdup("true"));
@@ -330,14 +417,11 @@ YAP_Value yap_eval_binary_expression(YAP_Interpreter *inter, LocalEnvironment *e
                && right_val.type == YAP_STRING_VALUE) {
         result.type = YAP_BOOLEAN_VALUE;
         result.u.boolean_value
-            = eval_compare_string(operator, &left_val, &right_val,
-                                  left->line_number);
+            = eval_compare_string(operator, &left_val, &right_val, left->line_number);
     } else if (left_val.type == YAP_NULL_VALUE
                || right_val.type == YAP_NULL_VALUE) {
         result.type = YAP_BOOLEAN_VALUE;
-        result.u.boolean_value
-            = eval_binary_null(inter, operator, &left_val, &right_val,
-                               left->line_number);
+        result.u.boolean_value = eval_binary_null(inter, operator, &left_val, &right_val, left->line_number);
     } else {
         char *op_str = yap_get_operator_string(operator);
         char msg[100];
@@ -362,12 +446,12 @@ static YAP_Value eval_logical_and_or_expression(YAP_Interpreter *inter, LocalEnv
         yap_runtime_error(left->line_number, "左值类型必须为布尔型");
     }
     if (operator == LOGICAL_AND_EXPRESSION) {
-        if (!left_val.i.boolean_value) {
+        if (!left_val.u.boolean_value) {
             result.u.boolean_value = YAP_FALSE;
             return result;
         }
     } else if (operator == LOGICAL_OR_EXPRESSION) {
-        if (left_val.i.boolean_value) {
+        if (left_val.u.boolean_value) {
             result.u.boolean_value = YAP_TRUE;
             return result;
         }
@@ -393,7 +477,7 @@ YAP_Value yap_eval_minus_expression(YAP_Interpreter *inter, LocalEnvironment *en
     operand_val = eval_expression(inter, env, operand);
     if (operand_val.type == YAP_INT_VALUE) {
         result.type = YAP_INT_VALUE;
-        result.u.int_value = -operand_val.i.int_value;
+        result.u.int_value = -operand_val.u.int_value;
     } else if (operand_val.type == YAP_DOUBLE_VALUE) {
         result.type = YAP_DOUBLE_VALUE;
         result.u.double_value = -operand_val.u.double_value;
@@ -469,20 +553,20 @@ static YAP_Value call_yap_function(YAP_Interpreter *inter, LocalEnvironment *env
     return value;
 }
 
-static YAP_Value call_native_function(YPA_Interpreter *inter, LocalEnvironment *env, Expression *expr, YAP_NativeFunctionProc *proc)
+static YAP_Value call_native_function(YAP_Interpreter *inter, LocalEnvironment *env, Expression *expr, YAP_NativeFunctionProc *proc)
 {
-    YAP_Value value;
-    int arg_count;
-    ArgumentList *arg_p;
-    YAP_Value *args;
-    int i;
-
-    for (arg_count = 0, arg_p = expr->u.function_call_expression.argument; arg_p; arg_p = arg_p = arg_p->next) {
+    YAP_Value   value;
+    int         arg_count;
+    ArgumentList        *arg_p;
+    YAP_Value   *args;
+    int         i;
+    
+    for (arg_count = 0, arg_p = expr->u.function_call_expression.argument; arg_p; arg_p = arg_p->next) {
         arg_count++;
     }
 
-    args = MEM_malloc(sizeof(YAP_Value) *arg_count);
-
+    args = MEM_malloc(sizeof(YAP_Value) * arg_count);
+    
     for (arg_p = expr->u.function_call_expression.argument, i = 0; arg_p; arg_p = arg_p->next, i++) {
         args[i] = eval_expression(inter, env, arg_p->expression);
     }
@@ -505,7 +589,8 @@ static YAP_Value eval_function_call_expression(YAP_Interpreter *inter, LocalEnvi
 
     func = yap_search_function(identifier);
     if (func == NULL) {
-
+        sprintf(msg, "未找到函数-%s", identifier);
+        yap_runtime_error(expr->line_number, msg);
     }
     switch (func->type) {
     case YAP_FUNCTION_DEFINITION:

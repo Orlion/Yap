@@ -42,4 +42,6 @@ typedef YAP_Value YAP_NativeFunctionProc(YAP_Interpreter *interpreter, int arg_c
 
 void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_NativeFunctionProc *proc);
 
+void YAP_add_global_variable(YAP_Interpreter *inter, char *identifier, YAP_Value *value);
+
 #endif

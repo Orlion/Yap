@@ -5,6 +5,8 @@
 #include "YAP.h"
 #include "YAP_dev.h"
 
+#define LINE_BUF_SIZE           (1024)
+
 typedef enum {
     PARSE_ERR = 1,
     CHARACTER_INVALID_ERR,
@@ -315,6 +317,7 @@ void *yap_malloc(size_t size);
 Variable *yap_search_global_variable(YAP_Interpreter *inter, char *identifier);
 void yap_add_local_variable(LocalEnvironment *env, char *identifier, YAP_Value *value);
 Variable *yap_search_local_variable(LocalEnvironment *env, char *identifier);
+char *yap_get_operator_string(ExpressionType type);
 
 /* error.c */
 void yap_compile_error(char *msg);

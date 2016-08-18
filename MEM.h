@@ -29,6 +29,8 @@ void *MEM_storage_malloc_func(MEM_Controller controller, char *filename, int lin
 
 #define MEM_storage_malloc(storage, size) (MEM_storage_malloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, storage, size))
 
+void *MEM_realloc_func(MEM_Controller controller, char *filename, int line, void *ptr, size_t size);
+
 #define MEM_realloc(ptr, size) (MEM_realloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, ptr, size))
 
 #define MEM_dump_blocks(fp) (MEM_dump_blocks_func(MEM_CURRENT_CONTROLLER, fp))
@@ -40,5 +42,9 @@ void MEM_free_func(MEM_Controller controller, void *ptr);
 void *MEM_malloc_func(MEM_Controller controller, char *filename, int line, size_t size);
 
 #define MEM_malloc(size) (MEM_malloc_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, size))
+
+char *MEM_strdup_func(MEM_Controller controller, char *filename, int line, char *str);
+
+#define MEM_strdup(str) (MEM_strdup_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, str))
 
 #endif  /* PUBLIC_MEM_H */

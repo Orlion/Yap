@@ -1,4 +1,4 @@
-#include "crowbar.h"
+#include "yaplang.h"
 #include "MEM.h"
 
 static YAP_String *alloc_yap_string(YAP_Interpreter *inter, char *str, YAP_Boolean is_literal)
@@ -38,4 +38,12 @@ void yap_release_string(YAP_String *str)
 		}
 		MEM_free(str);
 	}
+}
+
+YAP_String *yap_create_yap_string(YAP_Interpreter *inter, char *str)
+{
+    YAP_String *ret = alloc_yap_string(inter, str, YAP_FALSE);
+    ret->ref_count = 1;
+
+    return ret;
 }
