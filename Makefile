@@ -21,7 +21,9 @@ $(TARGET):$(OBJS)
 	cd ./memory; $(MAKE);
 	$(CC) $(OBJS) -o $@ -lm
 clean:
-	rm -f *.o lex.yy.c y.tab.c y.tab.h *~
+	rm -f *.o *.output lex.yy.c y.tab.c y.tab.h *~;
+	cd ./memory;
+	rm -f *.o
 y.tab.h : yap.y
 	bison --yacc -dv yap.y
 y.tab.c : yap.y

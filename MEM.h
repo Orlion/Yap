@@ -47,4 +47,8 @@ char *MEM_strdup_func(MEM_Controller controller, char *filename, int line, char 
 
 #define MEM_strdup(str) (MEM_strdup_func(MEM_CURRENT_CONTROLLER, __FILE__, __LINE__, str))
 
+void MEM_dispose_storage_func(MEM_Controller controller, MEM_Storage storage);
+
+#define MEM_dispose_storage(storage) (MEM_dispose_storage_func(MEM_CURRENT_CONTROLLER, storage))
+
 #endif  /* PUBLIC_MEM_H */

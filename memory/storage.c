@@ -74,3 +74,15 @@ MEM_Storage MEM_open_storage_func(MEM_Controller controller, char *filename, int
 
     return storage;
 }
+
+void MEM_dispose_storage_func(MEM_Controller controller, MEM_Storage storage)
+{
+    MemoryPage  *temp;
+
+    while (storage->page_list) {
+        temp = storage->page_list->next;
+        MEM_free_func(controller, storage->page_list);
+        storage->page_list = temp;
+    }
+    MEM_free_func(controller, storage);
+}

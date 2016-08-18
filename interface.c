@@ -61,3 +61,23 @@ void YAP_add_native_function(YAP_Interpreter *interpreter, char *name, YAP_Nativ
 
     interpreter->function_list = fd;
 }
+
+static void release_global_strings(YAP_Interpreter *interpreter) {
+    while (interpreter->variable) {
+        Variable *temp = interpreter->variable;
+        interpreter->variable = temp->next;
+        if (temp->value.type == YAP_STRING_VALUE) {
+            yap_release_string(temp->value.u.string_value);
+        }
+    }
+}
+
+void YAP_dispose_interpreter(YAP_Interpreter *interpreter)
+{
+    release_global_strings(interpreter);
+    if (interpreter->execute_storage) {
+        MEM_dispose_storage(interpreter->execute_storage);
+    }
+
+    MEM_dispose_storage(interpreter->interpreter_storage);
+}

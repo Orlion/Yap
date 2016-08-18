@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     /* 解释 */
     YAP_interpret(interpreter);
     
-    /* YAP_dispose_interpreter(interpreter); */
+    YAP_dispose_interpreter(interpreter);
 
 	return 0;	
 }
