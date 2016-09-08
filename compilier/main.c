@@ -8,7 +8,6 @@ int main(int argc, char **argv)
 	FILE *fp;
 	DKC_Compilier *compilier;
 	DVM_Executeable *exe;
-	DVM_VirtualMachine *dvm;
 
 	if (argc < 2) {
 		fprintf(stderr, "Programe:%s filename arg1, arg2, ...\n", argv[0]);

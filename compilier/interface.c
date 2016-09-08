@@ -1,3 +1,5 @@
+#include "MEM.h"
+
 DKC_Compilier *DKC_create_compilier(void)
 {
 	MEM_Storage storage;
