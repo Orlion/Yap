@@ -1,13 +1,30 @@
 #include "MEM.h"
+#include "diksamc.h"
 
-DKC_Compilier *DKC_create_compilier(void)
+static DVM_Executable *do_compile(DKC_Compiler *compiler)
+{
+	extern int yyparse(void);
+	DVM_Executable *exe;
+
+	dkc_set_current_compiler(compiler);
+	if (yyparse()) {
+		fprintf(stderr, "Error\n");
+		exit(1);
+	}
+	// dkc_fix_tree(compiler);				/* 修正分析树 */
+	// exe = dkc_generate(compiler);
+
+	return exe;
+}
+
+DKC_Compiler *DKC_create_compiler(void)
 {
 	MEM_Storage storage;
-	DKC_Compilier *compilier;
+	DKC_Compiler *compiler;
 
 	storage = MEM_open_storage(0);
-	compilier = MEM_storage_malloc(storage, sizeof(struct DKC_Compilier_tag));
-	compilier->compilie_strorage = storage;
+	compiler = MEM_storage_malloc(storage, sizeof(struct DKC_Compiler_tag));
+	compiler->compilie_strorage = storage;
 	compiler->function_list = NULL;
 	compiler->function_count = 0;
 	compiler->declaration_list = NULL;
@@ -29,17 +46,17 @@ DKC_Compilier *DKC_create_compilier(void)
 #endif
 #endif
 #endif
-	dkc_set_current_compiler(compiler);
-
+	/* dkc_set_current_compiler(compiler); */
+ 
 	return compiler;
 }
 
-DVM_Executable *DKC_compile(DKC_Compilier *compiler, FILE *fp)
+DVM_Executable *DKC_compile(DKC_Compiler *compiler, FILE *fp)
 {
 	extern FILE *yyin;
 	DVM_Executable *exe;
 
-	compiler->currert_line_number = 1;
+	/* compiler->currert_line_number = 1; */
 
 	yyin = fp;
 

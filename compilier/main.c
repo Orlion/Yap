@@ -22,6 +22,6 @@ int main(int argc, char **argv)
 
 	/* set locale */
 	setlocale(LC_CTYPE, "");
-	compilier = DKC_create_compilier();
-	exe = DKC_compile(compilier, fp);
+	compiler = DKC_create_compiler();
+	exe = DKC_compile(compiler, fp);
 }
