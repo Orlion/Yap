@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <locale.h>
 #include "DKC.h"
+#include "DVM.h"
 
 int main(int argc, char **argv)
 {
 	FILE *fp;
-	DKC_Compilier *compilier;
-	DVM_Executeable *exe;
+	DKC_Compiler *compiler;
+	DVM_Executable *exe;
 
 	if (argc < 2) {
 		fprintf(stderr, "Programe:%s filename arg1, arg2, ...\n", argv[0]);
@@ -24,4 +25,6 @@ int main(int argc, char **argv)
 	setlocale(LC_CTYPE, "");
 	compiler = DKC_create_compiler();
 	exe = DKC_compile(compiler, fp);
+
+	return 0;
 }

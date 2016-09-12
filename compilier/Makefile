@@ -16,7 +16,7 @@ INCLUDES = \
 
 $(TARGET):$(OBJS)
 	cd ../memory; $(MAKE);
-	$(CC) $(OBJS) -o $@ -lm -lmsvcp60
+	$(CC) $(OBJS) -o $@ -lm
 
 clean:
 	rm -f *.o lex.yy.c y.tab.c y.output y.tab.h *~

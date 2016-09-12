@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "MEM.h"
 #include "diksamc.h"
 
@@ -11,8 +12,8 @@ static DVM_Executable *do_compile(DKC_Compiler *compiler)
 		fprintf(stderr, "Error\n");
 		exit(1);
 	}
-	// dkc_fix_tree(compiler);				/* 修正分析树 */
-	// exe = dkc_generate(compiler);
+	/* dkc_fix_tree(compiler); */				/* 修正分析树 */
+	/* exe = dkc_generate(compiler); */
 
 	return exe;
 }
@@ -24,7 +25,7 @@ DKC_Compiler *DKC_create_compiler(void)
 
 	storage = MEM_open_storage(0);
 	compiler = MEM_storage_malloc(storage, sizeof(struct DKC_Compiler_tag));
-	compiler->compilie_strorage = storage;
+	compiler->compile_storage = storage;
 	compiler->function_list = NULL;
 	compiler->function_count = 0;
 	compiler->declaration_list = NULL;
@@ -62,7 +63,7 @@ DVM_Executable *DKC_compile(DKC_Compiler *compiler, FILE *fp)
 
 	exe = do_compile(compiler);
 
-	dkc_reset_string_literal_buffer();
+	/* dkc_reset_string_literal_buffer(); */
 
 	return exe;
 }

@@ -1,4 +1,5 @@
 %{
+#include "diksamc.h"
 #define YYDEBUG 1	
 %}
 %union {

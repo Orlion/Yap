@@ -150,7 +150,7 @@ static void increment_line_number(void)
 	return DOUBLE_LITERAL;
 }
 <INITIAL>\" {
-	dkc_open_string_literal();
+	/* dkc_open_string_literal(); */
 	BEGIN STRING_LITERAL_STATE;
 }
 <INITIAL>[ \t] ;
@@ -183,13 +183,13 @@ static void increment_line_number(void)
 	return STRING_LITERAL;
 }
 <STRING_LITERAL_STATE>\n {
-	dkc_add_string_literal('\n');
+	/* dkc_add_string_literal('\n'); */
 	increment_line_number();
 }
-<STRING_LITERAL_STATE>\\\" dkc_add_string_literal('"');
-<STRING_LITERAL_STATE>\\n  dkc_add_string_literal('\n');
-<STRING_LITERAL_STATE>\\t  dkc_add_string_literal('\t');
-<STRING_LITERAL_STATE>\\\\ dkc_add_string_literal('\\');
+<STRING_LITERAL_STATE>\\\" /* dkc_add_string_literal('"');*/
+<STRING_LITERAL_STATE>\\n  /* dkc_add_string_literal('\n');*/
+<STRING_LITERAL_STATE>\\t  /* dkc_add_string_literal('\t');*/
+<STRING_LITERAL_STATE>\\\\ /* dkc_add_string_literal('\\');*/
 <STRING_LITERAL_STATE>. {
 
 }

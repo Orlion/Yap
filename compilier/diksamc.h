@@ -10,12 +10,12 @@
 
 #define LINE_BUF_SIZE           (1024)
 
+typedef struct TypeSpecifier_tag TypeSpecifier;
+
 typedef enum {
 	FUNCTION_DERIVE
-} DeriveTag;			/* 枚举类型DeriveTag是一种派生类型的表现，现在Diksam中没有数组之类的类型，目前存在的派生类型只有函数类型（FUNCTION_DERIVE）。
-								函数（派生类型）的定义保存在FunctionDerive中，具体来说就是参数的类型信息 */
-
-typedef struct TypeSpecifier_tag TypeSpecifier;
+} DeriveTag;			/* 枚举类型DeriveTag是一种派生类型的表现，现在Diksam中没有数组之类的类型，目前存在的派生类型只有函数类型
+					（FUNCTION_DERIVE）。函数（派生类型）的定义保存在FunctionDerive中，具体来说就是参数的类型信息 */
 
 typedef struct ParameterList_tag {
 	char			*name;
@@ -314,7 +314,6 @@ typedef enum {
 } Encoding;
 
 struct DKC_Compiler_tag {
-	MEM_Storage				compile_storage;
 	FunctionDefinition		*function_list;
 	int						function_count;
 	DeclarationList			*declaration_list;
@@ -323,6 +322,7 @@ struct DKC_Compiler_tag {
 	Block					*current_block;			/* 当前程序块，当程序块开始时（匹配到{时）设置current_block */
 	DKC_InputMode			input_mode;
 	Encoding				source_encoding;
+	MEM_Storage				compile_storage;
 };
 
 /* util.c */

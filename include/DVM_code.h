@@ -1,6 +1,7 @@
 #ifndef PUBLIC_DVM_CODE_H_INCLUDED
 #define PUBLIC_DVM_CODE_H_INCLUDED
 
+#include <wchar.h>
 #include "DVM.h"
 
 typedef struct DVM_TypeSpecifier_tag DVM_TypeSpecifier;
@@ -99,5 +100,5 @@ struct DVM_Executable_tag {
 	int 					line_number_size;
 	DVM_LineNumber		*line_number; 		/* 保存字节码和与之对应的源代码的行号 */
 	int 					need_stack_size; /* 保存顶层结构的代码对栈的需要量； 每个函数对栈的需要量都保存在各自的DVM_Function中 */
-}
+};
 #endif
