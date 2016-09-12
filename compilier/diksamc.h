@@ -1,7 +1,19 @@
-#ifndef PRIVATE_DIKSAM_H_INCLUDE
-#define PRIVATE_DIKSAM_H_INCLUDE
-#include "DKC.h"
+#ifndef PRIVATE_DIKSAMC_H_INCLUDED
+#define PRIVATE_DIKSAMC_H_INCLUDED
+#include <stdio.h>
 #include "MEM.h"
+#include "DKC.h"
+#include "DVM_code.h"
+
+#define smaller(a, b) ((a) < (b) ? (a) : (b))
+#define larger(a, b) ((a) > (b) ? (a) : (b))
+
+#define LINE_BUF_SIZE           (1024)
+
+typedef enum {
+	FUNCTION_DERIVE
+} DeriveTag;			/* 枚举类型DeriveTag是一种派生类型的表现，现在Diksam中没有数组之类的类型，目前存在的派生类型只有函数类型（FUNCTION_DERIVE）。
+								函数（派生类型）的定义保存在FunctionDerive中，具体来说就是参数的类型信息 */
 
 typedef struct TypeSpecifier_tag TypeSpecifier;
 
@@ -11,11 +23,6 @@ typedef struct ParameterList_tag {
 	int 				line_number;
 	struct ParameterList_tag 	*next;
 } ParameterList;
-
-typedef enum {
-	FUNCTION_DERIVE
-} DeriveTag;			/* 枚举类型DeriveTag是一种派生类型的表现，现在Diksam中没有数组之类的类型，目前存在的派生类型只有函数类型（FUNCTION_DERIVE）。
-								函数（派生类型）的定义保存在FunctionDerive中，具体来说就是参数的类型信息 */
 
 typedef struct {
 	ParameterList *paramter_list;
@@ -32,20 +39,14 @@ typedef struct TypeDerive_tag {
 struct TypeSpecifier_tag {
 	DVM_BasicType	base_type;		/* 基本数据类型 */
 	TypeDerive 		*derive;			/* 派生类型 */
-}
+};
 
 typedef struct Expression_tag Expression;
 
-struct Expression_tag {
-	TypeSpecifier *type;
-	ExpressionKind kind;
-	int line_number;
-	union {
-		DVM_Boolean			boolean_value;
-		int 					int_value;
-		double				double_value;
-	}
-};
+typedef struct ArgumentList_tag {
+	Expression 	*expression;
+	struct 		ArgumentList_tag 	*next;
+} ArgumentList;
 
 typedef struct {
 	char 				*name;
@@ -55,17 +56,144 @@ typedef struct {
 	DVM_Boolean 	is_local;
 } Declaration;		/* 再处理int a；这样的声明语句时，在create.c的阶段会创建Declaration结构体 */
 
+typedef enum {
+	BOOLEAN_EXPRESSION = 1,
+	INT_EXPRESSION,
+	DOUBLE_EXPRESSION,
+	STRING_EXPRESSION,
+	IDENTIFIER_EXPRESSION,
+	COMMA_EXPRESSION,
+	ASSIGN_EXPRESSION,
+	ADD_EXPRESSION,
+	SUB_EXPRESSION,
+	MUL_EXPRESSION,
+	DIV_EXPRESSION,
+	MOD_EXPRESSION,
+	EQ_EXPRESSION,
+	NE_EXPRESSION,
+	GT_EXPRESSION,
+	GE_EXPRESSION,
+	LT_EXPRESSION,
+	LE_EXPRESSION,
+	LOGICAL_AND_EXPRESSION,
+	LOGICAL_OR_EXPRESSION,
+	MINUS_EXPRESSION,
+	LOGICAL_NOT_EXPRESSION,
+	FUNCTION_CALL_EXPRESSION,
+	INCREMENT_EXPRESSION,
+	DECREMENT_EXPRESSION,
+	CAST_EXPRESSION,
+	EXPRESSION_KIND_COUNT_PLUS_1
+} ExpressionKind;
+
+typedef struct FunctionDefinition_tag FunctionDefinition;
+
+typedef struct {
+	char 	*name;
+	DVM_Boolean 	is_function;
+	union {
+		FunctionDefinition  *function;
+		Declaration 			*declaration;
+	} u;
+} IdentifierExpression;
+
+typedef struct {
+	Expression *left;
+	Expression *right;
+} CommaExpression;
+
+typedef enum {
+	NORMAL_ASSIGN = 1,
+	ADD_ASSIGN,
+	SUB_ASSIGN,
+	MUL_ASSIGN,
+	DIV_ASSIGN,
+	MOD_ASSIGN
+} AssignmentOperator;
+
+typedef struct {
+	AssignmentOperator operator;
+	Expression *left;
+	Expression *right;
+} AssignExpression;
+
+typedef struct {
+	Expression *left;
+	Expression *right;
+} BinaryExpression;
+
+typedef struct {
+	Expression 		*function;
+	ArgumentList 	*argument;
+} FunctionCallExpression;
+
+typedef struct {
+	Expression *operand;
+} IncrementOrDecrement;
+
+typedef enum {
+	INT_TO_DOUBLE_CAST,
+	DOUBLE_TO_INT_CAST,
+	BOOLEAN_TO_STRIING_CAST,
+	INT_TO_STRING_CAST,
+	DOUBLE_TO_STRING_CAST
+} CastType;
+
+typedef struct {
+	CastType 	type;
+	Expression 	*operand;
+} CastExpression;
+
+struct Expression_tag {
+	TypeSpecifier *type;
+	ExpressionKind kind;
+	int line_number;
+	union {
+		DVM_Boolean				boolean_value;
+		int 						int_value;
+		double					double_value;
+		DVM_Char 				*string_value;
+		IdentifierExpression 	identifier;
+		CommaExpression 			comma;
+		AssignExpression 		assign_expression;
+		BinaryExpression 		binary_expression;
+		Expression 				*minus_expression;
+		Expression 				*logical_not;
+		FunctionCallExpression 	function_call_expression;
+		IncrementOrDecrement 	inc_dec;
+		CastExpression 			cast;
+	} u;
+};
+
 typedef struct DeclarationList_tag {
 	Declaration 					*declaration;
 	struct DeclarationList_tag 	*next;
-}
+} DeclarationList;
+
+typedef struct Statement_tag Statement;
+
+typedef struct StatementList_tag {
+	Statement  *statement;
+	struct StatementList_tag *next;
+} StatementList;
 
 typedef enum {
-	UNDEFINED_BLOCK = 1;
-	FUNCTION_BLOCK;
-	WHILE_STATEMENT_BLOCK;
-	FOR_STATEMENT_BLOCK;
+	UNDEFINED_BLOCK = 1,
+	FUNCTION_BLOCK,
+	WHILE_STATEMENT_BLOCK,
+	FOR_STATEMENT_BLOCK
 } BlockType;
+
+typedef struct {
+	Statement 	*statement;
+	int 			continue_label;
+	int 			break_label;
+} StatementBlockInfo;
+
+typedef struct {
+	FunctionDefinition 	*function;
+	int 					end_label;
+} FunctionBlockInfo;
 
 typedef struct Block_tag {
 	BlockType		type;
@@ -77,8 +205,6 @@ typedef struct Block_tag {
 		FunctionBlockInfo	function;
 	} parent;
 } Block;
-
-typedef FunctionDefinition_tag FunctionDefinition;
 
 struct FunctionDefinition_tag {
 	TypeSpecifier		*type;
@@ -106,14 +232,71 @@ typedef enum {
 	STATEMENT_TYPE_COUNT_PLUS_1
 } StatementType;
 
+typedef struct Elseif_tag {
+	Expression 	*condition;
+	Block 		*block;
+	struct Elseif_tag *next;
+} Elseif;
+
+typedef struct {
+	Expression *condition;
+	Block 		*then_block;
+	Elseif 		*elseif_block;
+	Block 		*else_block;
+} IfStatement;
+
+typedef struct {
+	char 		*label;
+	Expression 	*condition;
+	Block 		*block;
+} WhileStatement;
+
+typedef struct {
+	char 	*label;
+	Expression 	*init;
+	Expression 	*condition;
+	Expression 	*post;
+	Expression 	*block;
+} ForStatement;
+
+typedef struct {
+	char 		*label;
+	char 		*variable;
+	Expression 	*collection;
+	Block 		*block;
+} ForeachStatement;
+
+typedef struct {
+	Expression 	*return_value;
+} ReturnStatement;
+
+typedef struct {
+	char 	*label;
+} BreakStatement;
+
+typedef struct {
+	char 	*label;
+} ContinueStatement;
+
+typedef struct {
+	Block 	*try_block;
+	Block 	*catch_block;
+	char 	*exception;
+	Block 	*finally_block;
+} TryStatement;
+
+typedef struct {
+	Expression *expression;
+} ThrowStatement;
+
 struct Statement_tag {
 	StatementType 	type;
 	int 				line_number;
 	union {
-		Expression 	*expression_s;
-		IfStatement if_s;
-		WhileStatement 	while_s;
-		ForStatement 	for_s;
+		Expression 			*expression_s;
+		IfStatement 			if_s;
+		WhileStatement 		while_s;
+		ForStatement 		for_s;
 		ForeachStatement 	foreach_s;
 		BreakStatement 		break_s;
 		ContinueStatement 	continue_s;
@@ -124,11 +307,6 @@ struct Statement_tag {
 	} u;
 };
 
-typedef StatementList_tag {
-	Statement  *statement;
-	struct StatementList_tag *next;
-} StatementList;
-
 typedef enum {
 	ENU_ENCODING = 1,
 	SHIFT_JIS_ENCODING,
@@ -136,15 +314,19 @@ typedef enum {
 } Encoding;
 
 struct DKC_Compiler_tag {
-	MEM_Srorage				compile_storage;
+	MEM_Storage				compile_storage;
 	FunctionDefinition		*function_list;
 	int						function_count;
 	DeclarationList			*declaration_list;
 	StatementList			*statement_list;
-	int						*current_line_number;
+	int						current_line_number;
 	Block					*current_block;			/* 当前程序块，当程序块开始时（匹配到{时）设置current_block */
 	DKC_InputMode			input_mode;
 	Encoding				source_encoding;
 };
 
+/* util.c */
+DKC_Compiler *dkc_get_current_compiler(void);
 void dkc_set_current_compiler(DKC_Compiler *compiler);
+
+#endif

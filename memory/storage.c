@@ -1,4 +1,4 @@
-typedef MemoryPage_tag MemoryPage;
+typedef struct MemoryPage_tag MemoryPage;
 typedef MemoryPage *MemoryPageList;
 
 typedef union {
@@ -12,9 +12,9 @@ struct MemoryPage_tag {
 	int		use_cell_num;
 	MemoryPageList	next;
 	Cell 	cell[1];
-}
+};
 
 struct MEM_Storage_tag {
 	MemoryPageList	page_list;
 	int				current_page_size;
-}
+};

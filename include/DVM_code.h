@@ -1,3 +1,8 @@
+#ifndef PUBLIC_DVM_CODE_H_INCLUDED
+#define PUBLIC_DVM_CODE_H_INCLUDED
+
+#include "DVM.h"
+
 typedef struct DVM_TypeSpecifier_tag DVM_TypeSpecifier;
 
 typedef struct {
@@ -11,6 +16,10 @@ typedef enum {
 	DVM_DOUBLE_TYPE,
 	DVM_STRING_TYPE
 } DVM_BasicType;	/* 基本数据类型 */
+
+typedef enum {
+	DVM_FUNCTION_DERIVE
+} DVM_DeriveTag;
 
 typedef struct {
 	int 					parameter_count;
@@ -28,7 +37,7 @@ struct DVM_TypeSpecifier_tag {
 	DVM_BasicType 	basic_type;
 	int 				derive_count;
 	DVM_TypeDerive 	*derive;
-}
+};
 
 typedef enum {
 	DVM_CONSTANT_INT,
@@ -91,3 +100,4 @@ struct DVM_Executable_tag {
 	DVM_LineNumber		*line_number; 		/* 保存字节码和与之对应的源代码的行号 */
 	int 					need_stack_size; /* 保存顶层结构的代码对栈的需要量； 每个函数对栈的需要量都保存在各自的DVM_Function中 */
 }
+#endif
