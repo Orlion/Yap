@@ -1,13 +1,19 @@
+#include <stdlib.h>
+#include "memory.h"
+
 typedef struct MemoryPage_tag MemoryPage;
 typedef MemoryPage *MemoryPageList;
-
-#define larget(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef union {
 	long 	l_dummy;
 	double	d_dummy;
 	void	*p_dummy;
 } Cell;
+
+#define CELL_SIZE 			(sizeof(Cell))
+#define DEFAULT_PAGE_SIZE 	(1024)
+
+#define larger(a, b) (((a) > (b)) ? (a) : (b))
 
 struct MemoryPage_tag {
 	int 		cell_num;
@@ -21,7 +27,7 @@ struct MEM_Storage_tag {
 	int				current_page_size;
 };
 
-void *MEM_open_storage_func(char *filename, int line, int page_size)
+MEM_Storage MEM_open_storage_func(char *filename, int line, int page_size)
 {
 	MEM_Storage storage;
 
@@ -41,7 +47,7 @@ void *MEM_storage_malloc_func(char *filename, int line, MEM_Storage storage, siz
 	int cell_num;
 	MemoryPage *new_page;
 	void 	*p;
-
+	/* 计算需要的Cell数量，向上取整 */
 	cell_num = ((size - 1) / CELL_SIZE) + 1;
 
 	if (storage->page_list != NULL && (storage->page_list->use_cell_num + cell_num < storage->page_list->cell_num)) {
@@ -63,3 +69,4 @@ void *MEM_storage_malloc_func(char *filename, int line, MEM_Storage storage, siz
 
 	return p;
 }
+

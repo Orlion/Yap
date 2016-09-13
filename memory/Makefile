@@ -1,12 +1,13 @@
 TARGET = mem.o
 CC=gcc
 CFLAGS = -c -g -DDEBUG -Wall
-OBJS = storage.o
+OBJS = memory.o storage.o
 
 $(TARGET):$(OBJS)
 	ld -r -o $@ $(OBJS)
-clean:
-	rm -f *.o
 .c.o:
 	$(CC) $(CFLAGS) -I../include $*.c
-storage.o: storage.c ../include/MEM.h
+clean:
+	rm -f *.o
+memory.o: memory.c memory.h ../include/MEM.h
+storage.o: storage.c memory.h ../include/MEM.h

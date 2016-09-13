@@ -1,0 +1,17 @@
+if (false) {
+    print("bad\n");
+} elseif (true) {
+    print("good\n");
+} else {
+    print("bad\n");
+}
+
+if (false) {
+    print("bad\n");
+} elseif (false) {
+    print("bad\n");
+} else {
+    print("good\n");
+}
+
+int i;

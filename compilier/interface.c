@@ -63,7 +63,19 @@ DVM_Executable *DKC_compile(DKC_Compiler *compiler, FILE *fp)
 
 	exe = do_compile(compiler);
 
-	/* dkc_reset_string_literal_buffer(); */
-
 	return exe;
+}
+
+void dkc_compile_error(int line_number, char *msg)
+{
+	fprintf(stderr, "[ERROR]%s [line in :%d]\n", msg, line_number);
+	exit(1);
+}
+
+void yyerror()
+{
+	extern char *yytext;
+	char msg[100];
+	sprintf(msg, "syntax error, unexpected '%s'", yytext);
+	dkc_compile_error(dkc_get_current_compiler()->current_line_number, msg);
 }

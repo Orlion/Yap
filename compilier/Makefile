@@ -8,7 +8,7 @@ OBJS = \
   util.o\
   ../memory/mem.o\
 
-CFLAGS = -c -g -Wall -Wswitch-enum -ansi -pedantic -DDEBUG
+CFLAGS = -c -g -Wall -Wswitch-enum -ansi -pedantic -DDEBUG -DSHIFT_JIS_SOURCE
 
 INCLUDES = \
   -I/usr/local/include\
@@ -19,7 +19,8 @@ $(TARGET):$(OBJS)
 	$(CC) $(OBJS) -o $@ -lm
 
 clean:
-	rm -f *.o lex.yy.c y.tab.c y.output y.tab.h *~
+	rm -f *.o lex.yy.c y.tab.c y.output y.tab.h *~;
+	cd ../memory; $(MAKE) clean;
 y.tab.h : diksam.y
 	bison --yacc -dv diksam.y
 y.tab.c : diksam.y
@@ -41,3 +42,4 @@ main.o: main.c ../include/DKC.h ../include/DVM_code.h ../include/DVM.h \
  ../include/MEM.h
 util.o: util.c ../include/MEM.h diksamc.h \
  ../include/DKC.h ../include/DVM_code.h ../include/DVM.h
+ 

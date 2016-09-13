@@ -329,4 +329,7 @@ struct DKC_Compiler_tag {
 DKC_Compiler *dkc_get_current_compiler(void);
 void dkc_set_current_compiler(DKC_Compiler *compiler);
 
+/* interface.c */
+void dkc_compile_error(int line_number, char *msg);
+
 #endif
