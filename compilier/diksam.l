@@ -138,19 +138,29 @@ static void increment_line_number(void)
 <INITIAL>"!"            return EXCLAMATION;
 <INITIAL>"."            return DOT;
 <INITIAL>[A-Za-z_][A-Za-z_0-9]* {
+	yylval.identifier = dkc_create_identifier(yytext);
 	return IDENTIFIER;
 }
 <INITIAL>[1-9][0-9]* {
+	Expression *expression = dkc_alloc_expression(INT_EXPRESSION);
+	sscanf(yytext, "%d", &expression->u.int_value);
+	yylval.expression = expression;
 	return INT_LITERAL;
 }
 <INITIAL>"0" {
+	Expression *expression = dkc_alloc_expression(INT_EXPRESSION);
+	expression->u.int_value = 0;
+	yylval.expression = expression;
 	return INT_LITERAL;
 }
 <INITIAL>[0-9]+\.[0-9]+ {
+	Expression *expression = dkc_alloc_expression(DOUBLE_EXPRESSION);
+	sscanf(yytext, "%1f", &expression->u.double_value);
+	yylval.expression = expression;
 	return DOUBLE_LITERAL;
 }
 <INITIAL>\" {
-	/* dkc_open_string_literal(); */
+	dkc_open_string_literal();
 	BEGIN STRING_LITERAL_STATE;
 }
 <INITIAL>[ \t] ;
@@ -166,7 +176,7 @@ static void increment_line_number(void)
 	} else {
 		sprintf(buf, "0x%02x", (unsigned char)yytext[0]);
 	}
-	fprintf(stderr, "Parse error. bar char ...%s", buf);
+	dkc_compiler_error(dkc_get_current_compiler()->current_line_number, buf);
 }
 <C_COMMENT>\n increment_line_number();
 <C_COMMENT>"*/" {
@@ -179,18 +189,30 @@ static void increment_line_number(void)
 }
 <CC_COMMENT>. ;
 <STRING_LITERAL_STATE>\" {
+	Expression *expression = dkc_alloc_expression(STRING_EXPRESSION);
+	expression->u.string_value = dkc_close_string_literal();
+	yylval.expression = expression;
 	BEGIN INITIAL;
 	return STRING_LITERAL;
 }
 <STRING_LITERAL_STATE>\n {
-	/* dkc_add_string_literal('\n'); */
+	dkc_add_string_literal('\n');
 	increment_line_number();
 }
-<STRING_LITERAL_STATE>\\\" /* dkc_add_string_literal('"');*/
-<STRING_LITERAL_STATE>\\n  /* dkc_add_string_literal('\n');*/
-<STRING_LITERAL_STATE>\\t  /* dkc_add_string_literal('\t');*/
-<STRING_LITERAL_STATE>\\\\ /* dkc_add_string_literal('\\');*/
+<STRING_LITERAL_STATE>\\\"  dkc_add_string_literal('"');
+<STRING_LITERAL_STATE>\\n   dkc_add_string_literal('\n');
+<STRING_LITERAL_STATE>\\t   dkc_add_string_literal('\t');
+<STRING_LITERAL_STATE>\\\\  dkc_add_string_literal('\\');
 <STRING_LITERAL_STATE>. {
-
+	Encoding enc = dkc_get_current_compiler()->source_encoding;
+	dkc_add_string_literal(yytext[0]);
+	if (enc == SHIFT_JIS_2ND_CHAR && ((((unsigned char*)yytext[0] >= 0x81 && ((unsigned char*)yytext)[0] <= 0x9e)
+		|| (((unsigned char*)yytext)[0] >= 0xe0 && (unsigned char*)yytext[0] <= 0xef))) {
+		BEGIN SHIFT_JIS_2ND_CHAR;
+	}
+}
+<SHIFT_JIS_2ND_CHAR>. {
+	dkc_add_string_literal(yytext[0]);
+	BEGIN STRING_LITERAL_STATE;
 }
 %%

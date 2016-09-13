@@ -332,4 +332,9 @@ void dkc_set_current_compiler(DKC_Compiler *compiler);
 /* interface.c */
 void dkc_compile_error(int line_number, char *msg);
 
+/* string.c */
+void dkc_open_string_literal(void);
+void dkc_add_string_literal(int letter);
+
+/* create.c */
 #endif

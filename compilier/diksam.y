@@ -245,25 +245,25 @@ postfix_expression
 	: primary_expression
 	| postfix_expression LP argument_list RP
 	{
-
+		printf("postfix expression\n");
 	}
 	| postfix_expression LP RP
 	{
-
+		printf("postfix expression\n");
 	}
 	| postfix_expression INCREMENT
 	{
-
+		printf("postfix expression\n");
 	}
 	| postfix_expression DECREMENT
 	{
-
+		printf("postfix expression\n");
 	}
 	;
 primary_expression
 	: LP expression RP
 	{
-
+		printf("(a=b)");
 	}
 	| IDENTIFIER
 	{
@@ -285,7 +285,7 @@ primary_expression
 statement
 	: expression SEMICOLON
 	{
-
+		printf("a=b;");
 	}
 	| if_statement
 	| while_statement
@@ -301,32 +301,32 @@ statement
 if_statement
 	: IF LP expression RP block
 	{
-
+		printf("if");
 	}
 	| IF LP expression RP block ELSE block
 	{
-
+		printf("if");
 	}
 	| IF LP expression RP block elseif_list
 	{
-
+		printf("if");
 	}
 	| IF LP expression RP block elseif_list ELSE block
 	{
-
+		printf("if");
 	}
 	;
 elseif_list
 	: elseif
 	| elseif_list elseif
 	{
-
+		printf("elseif (a>b) {} elseif(a>b) {}\n");
 	}
 	;
 elseif
 	: ELSEIF LP expression RP block
 	{
-
+		printf("elseif (a>b) {}\n");
 	}
 	;
 label_opt
@@ -336,25 +336,25 @@ label_opt
 	}
 	| IDENTIFIER COLON
 	{
-
+		printf("abc :\n");
 	}
 	;
 while_statement
 	: label_opt WHILE LP expression RP block
 	{
-
+		printf("abc : while (abc>1) {}\n");
 	}
 	;
 for_statement
 	: label_opt FOR LP expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RP block
 	{
-
+		printf("abc : for (abc=1;i>1;i++) {}\n");
 	}
 	;
 foreach_statement
 	: label_opt FOREACH LP IDENTIFIER COLON expression RP block
 	{
-
+		printf("abc : foreach (abc : def) {}\n");
 	}
 	;
 expression_opt
@@ -367,7 +367,7 @@ expression_opt
 return_statement
 	: RETURN_T expression_opt SEMICOLON
 	{
-
+		printf("return abc;\n");
 	}
 	;
 identifier_opt
@@ -380,55 +380,57 @@ identifier_opt
 break_statement
 	: BREAK identifier_opt SEMICOLON
 	{
-
+		printf("break abc;\n");
 	}
 	;
 continue_statement
 	: CONTINUE identifier_opt SEMICOLON
 	{
-
+		printf("continue abc;\n");
 	}
 	;
 try_statement
 	: TRY block CATCH LP IDENTIFIER RP block FINALLY block
 	{
-
+		printf("try {} cathc (abc) {} finally {}\n");
 	}
 	| TRY block FINALLY block
 	{
-
+		printf("try {} finally {}\n");
 	}
 	| TRY block CATCH LP IDENTIFIER RP block
 	{
-
+		printf("try {} cathc (abc) {}\n");
 	}
 throw_statement
 	: THROW expression SEMICOLON
 	{
-
+		printf("throw a;\n")
 	}
 declaration_statement
 	: type_specifier IDENTIFIER SEMICOLON
 	{
-
+		printf("int abc;\n");
 	}
 	| type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
 	{
-
+		printf("int abc = a + b;\n")
 	}
 	;
 block
 	: LC
 	{
-
+		$<block>$ = dkc_open_block();
 	}
 	 statement_list RC
 	{
-
+		/* 嵌入动作 */
+		$<block>$ = dkc_close_block($<block>2, $3);
 	}
 	| LC RC
 	{
-
+		Block *empty_block = dkc_open_block();
+		$<block>$ = dkc_close_block(empty_block, NULL);
 	}
 	;
 %%
