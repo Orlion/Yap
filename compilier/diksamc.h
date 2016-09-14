@@ -328,13 +328,19 @@ struct DKC_Compiler_tag {
 /* util.c */
 DKC_Compiler *dkc_get_current_compiler(void);
 void dkc_set_current_compiler(DKC_Compiler *compiler);
+void *dkc_malloc(size_t size);
 
 /* interface.c */
 void dkc_compile_error(int line_number, char *msg);
 
 /* string.c */
+char *dkc_create_identifier(char *str);
 void dkc_open_string_literal(void);
 void dkc_add_string_literal(int letter);
+DVM_Char *dkc_close_string_literal(void);
 
 /* create.c */
+Expression *dkc_alloc_expression(ExpressionKind kind);
+
+Block *dkc_open_block(void);
 #endif

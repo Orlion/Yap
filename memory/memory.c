@@ -14,3 +14,19 @@ void *MEM_malloc_func(char *filename, int line, size_t size)
 
 	return ptr;
 }
+
+void *MEM_realloc_func(char *filename, int line, void *ptr, size_t size)
+{
+	void *new_ptr;
+
+	new_ptr = realloc(ptr, size);
+	if (new_ptr == NULL) {
+		if (ptr == NULL) {
+			fprintf(stderr, "Realloc(malloc) error in %s:%d line\n", filename, line);
+		} else {
+			fprintf(stderr, "Realloc error in %s:%d line\n", filename, line);
+		}
+	}
+
+	return (new_ptr);
+}

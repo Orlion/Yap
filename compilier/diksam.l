@@ -206,8 +206,8 @@ static void increment_line_number(void)
 <STRING_LITERAL_STATE>. {
 	Encoding enc = dkc_get_current_compiler()->source_encoding;
 	dkc_add_string_literal(yytext[0]);
-	if (enc == SHIFT_JIS_2ND_CHAR && ((((unsigned char*)yytext[0] >= 0x81 && ((unsigned char*)yytext)[0] <= 0x9e)
-		|| (((unsigned char*)yytext)[0] >= 0xe0 && (unsigned char*)yytext[0] <= 0xef))) {
+	if (enc == SHIFT_JIS_2ND_CHAR && ((((unsigned char*)yytext)[0] >= 0x81 && ((unsigned char*)yytext)[0] <= 0x9e)
+		|| (((unsigned char*)yytext)[0] >= 0xe0 && ((unsigned char*)yytext)[0] <= 0xef))) {
 		BEGIN SHIFT_JIS_2ND_CHAR;
 	}
 }

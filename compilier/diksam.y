@@ -405,7 +405,7 @@ try_statement
 throw_statement
 	: THROW expression SEMICOLON
 	{
-		printf("throw a;\n")
+		printf("throw a;\n");
 	}
 declaration_statement
 	: type_specifier IDENTIFIER SEMICOLON
@@ -414,7 +414,7 @@ declaration_statement
 	}
 	| type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
 	{
-		printf("int abc = a + b;\n")
+		printf("int abc = a + b;\n");
 	}
 	;
 block
