@@ -387,4 +387,21 @@ Expression *dkc_create_minus_expression(Expression *operand);
 Expression *dkc_create_binary_expression(ExpressionKind operator, Expression *left, Expression *right);
 
 Expression *dkc_create_assign_expression(Expression *left, AssignmentOperator operator, Expression *operand);
+
+Expression *dkc_create_comma_expression(Expression *left, Expression *right);
+
+StatementList *dkc_chain_statement_list(StatementList *list, Statement *statement);
+
+StatementList *dkc_create_statement_list(Statement *statement);
+
+ArgumentList *dkc_create_argument_list(Expression *expression);
+
+ArgumentList *dkc_chain_argument_list(ArgumentList *list, Expression *expr);
+
+ParameterList *dkc_create_parameter(DVM_BasicType type, char *identifier);
+
+ParameterList *dkc_chain_parameter(ParameterList *list, DVM_BasicType type, char *identifier);
+
+void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *paramter_list, Block *block);
+
 #endif

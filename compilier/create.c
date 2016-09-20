@@ -307,3 +307,90 @@ Expression *dkc_create_assign_expression(Expression *left, AssignmentOperator op
 
 	return exp;
 }
+
+Expression *dkc_create_comma_expression(Expression *left, Expression *right)
+{
+	Expression *exp;
+
+	exp = dkc_alloc_expression(COMMA_EXPRESSION);
+	exp->u.comma.left = left;
+	exp->u.comma.right = right;
+
+	return exp;
+}
+
+StatementList *dkc_create_statement_list(Statenment *statement)
+{
+	StatementList *sl;
+
+	sl = dkc_malloc(sizeof(StatementList));
+	sl->statement = statement;
+	sl->next = NULL;
+
+	return sl;
+}
+
+StatementList *dkc_chain_statement_list(StatementList *list, Statement *statement)
+{
+	StatementList *pos;
+
+	if (list == NULL) {
+		return dkc_create_statement_list(statement);	
+	}
+
+	for (pos = list; pos->next; pos = pos->next)
+		;
+	pos->next = dkc_create_statement_list(statement);
+
+	return list;
+}
+
+ArgumentList *dkc_create_argument_list(Expression *expression)
+{
+	ArgumentList *al;
+
+	al = dkc_malloc(sizeof(ArgumentList));
+	al->expression = expression;
+	al->next = NULL;
+
+	return al;
+}
+
+ArgumentList *dkc_chain_argument_list(ArgumentList *list, Expression *expr)
+{
+	ArgumentList *pos;
+
+	for (pos = list; pos->next; pos = pos->next)
+		;
+	pos->next = dkc_create_argument_list(expr);
+
+	return list;
+}
+
+ParameterList *dkc_create_parameter(DVM_BasicType type, char *identifier)
+{
+	ParameterList *p;
+
+	p = dkc_malloc(sizeof(ParameterList));
+	p->name = identifier;
+	p->type = dkc_alloc_type_specifier(type);
+	p->line_number = dkc_get_current_compiler()->current_line_number;
+	p->next = NULL;
+
+	return p;
+}
+
+ParameterList *dkc_chain_parameter(ParameterList *list, DVM_BasicType type, char *identifier)
+{
+	ParameterList *pos;
+
+	for (pos = list; pos->next; pos = pos->next)
+		;
+	pos->next = dkc_create_parameter(type, identifier);
+
+	return list;
+}
+
+void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *paramter_list, Block *block)
+{
+}

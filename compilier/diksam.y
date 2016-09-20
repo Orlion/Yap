@@ -51,80 +51,82 @@ definition_or_statement
 	: function_definition
 	| statement
 	{
+		DKC_Compiler *compiler = dkc_get_current_compiler();
 
+		compiler->statement_list = dkc_chain_statement_list(compiler->statement_list, $1);
 	}
 	;
 type_specifier
 	: BOOLEAN_T
 	{
-
+		$$ = DVM_BOOLEAN_TYPE;
 	}
 	| INT_T
 	{
-
+		$$ = DVM_INT_TYPE;
 	}
 	| DOUBLE_T
 	{
-
+		$$ = DVM_DOUBLE_TYPE;
 	}
 	| STRING_T
 	{
-
+		$$ = DVM_STRING_TYPE;
 	}
 	;
 function_definition
 	: type_specifier IDENTIFIER LP parameter_list RP block
 	{
-
+		dkc_function_define($1, $2, $4, $6);
 	}
 	| type_specifier IDENTIFIER LP RP block
 	{
-
+		dkc_function_define($1, $2, NULL, $5);
 	}
 	| type_specifier IDENTIFIER LP parameter_list RP SEMICOLON
 	{
-
+		dkc_function_define($1, $2, $4, NULL);
 	}
 	| type_specifier IDENTIFIER LP RP SEMICOLON
 	{
-
+		dkc_function_define($1, $2, NULL, NULL);
 	}
 	;
 parameter_list
 	: type_specifier IDENTIFIER
 	{
-
+		$$ = dkc_create_parameter($1, $2);
 	}
 	| parameter_list COMMA type_specifier IDENTIFIER
 	{
-
+		$$ = dkc_chain_parameter($1, $3, $4);
 	}
 	;
 argument_list
 	: assignment_expression
 	{
-
+		$$ = dkc_create_argument_list($1);
 	}
 	| argument_list COMMA assignment_expression
 	{
-
+		$$ = dkc_chain_argumnet_list($1, $3);
 	}
 	;
 statement_list
 	: statement
 	{
-
+		$$ = dkc_create_statement_list($1);
 	}
 	| statement_list statement
 	{
-
+		$$ = dkc_chain_statement_list($1, $2);
 	}
 	;
 expression
 	: assignment_expression
 	| expression COMMA assignment_expression
 	{
-
+		$$ = dkc_create_comma_expression($1, $3);
 	}
 	;
 assignment_expression
