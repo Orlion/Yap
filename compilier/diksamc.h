@@ -329,6 +329,7 @@ struct DKC_Compiler_tag {
 DKC_Compiler *dkc_get_current_compiler(void);
 void dkc_set_current_compiler(DKC_Compiler *compiler);
 void *dkc_malloc(size_t size);
+TypeSpecifier *dkc_alloc_type_specifier(DVM_BasicType type);
 
 /* interface.c */
 void dkc_compile_error(int line_number, char *msg);
@@ -340,7 +341,50 @@ void dkc_add_string_literal(int letter);
 DVM_Char *dkc_close_string_literal(void);
 
 /* create.c */
+Statement *dkc_create_for_statement(char *label, Expression *init, Expression *cond, Expression *post, Block *block);
+
+Statement *dkc_create_foreach_statement(char *label, char *variable, Expression *collection, Block *block);
+
+Statement *dkc_create_return_statement(Expression *expression);
+
+Statement *dkc_create_break_statement(char *label);
+
+Statement *dkc_create_continue_statement(char *label);
+
+Statement *dkc_create_try_statement(Block *try_block, char *exception, Block *catch_block, Block *finally_block);
+
+Statement *dkc_create_throm_statement(Expression *expression);
+
 Expression *dkc_alloc_expression(ExpressionKind kind);
 
+Statement *dkc_create_declaration_statement(DVM_BasicType type; char *identifier, Expression *initializer);
+
 Block *dkc_open_block(void);
+Blokc *dkc_close_block(Block *block, StatementList *statement_list);
+
+Statement *dkc_create_while_statement(char *label, Expression *condition, Block *block);
+
+Elseif *dkc_create_elseif(Expression *expr, Block *block);
+
+Elseif *dkc_chain_elseif_list(Elseif *list, Elseif *add);
+
+Statement *dkc_create_if_statement(Expression *condition, Block *then_block, Elseif *elseif_list, Block *else_block);
+
+Statement *dkc_create_expression_statement(Expression *expression);
+
+Expression *dkc_create_boolean_expression(DVM_Boolean value);
+
+Expression *dkc_create_identifier_expression(char *identifier);
+
+Expression *dkc_create_incede_expression(Expression *operand, ExpressionKind inc_or_dec);
+
+Expression *dkc_create_function_call_exrpession(Expression *function, ArgumentList *argument);
+
+Expression *dkc_create_logical_not_expression(Expression *operand);
+
+Expression *dkc_create_minus_expression(Expression *operand);
+
+Expression *dkc_create_binary_expression(ExpressionKind operator, Expression *left, Expression *right);
+
+Expression *dkc_create_assign_expression(Expression *left, AssignmentOperator operator, Expression *operand);
 #endif

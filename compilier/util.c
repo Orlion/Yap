@@ -22,3 +22,13 @@ void *dkc_malloc(size_t size)
 
 	return p;
 }
+
+TypeSpecifier *dkc_alloc_type_specifier(DVM_BasicType type)
+{
+	TypeSpecifier *ts = dkc_malloc(sizeof(TypeSpecifier));
+
+	ts->basic_type = type;
+	ts->derive = NULL;
+
+	return ts;
+}

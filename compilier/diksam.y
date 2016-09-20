@@ -131,143 +131,143 @@ assignment_expression
 	: logical_or_expression
 	| postfix_expression assignment_operator assignment_expression
 	{
-
+		$$ = dkc_create_assign_expression($1, $2, $3);
 	}
 	;
 assignment_operator
 	: ASSIGN_T
 	{
-
+		$$ = NORMAL_ASSIGN;
 	}
 	| ADD_ASSIGN_T
 	{
-
+		$$ = ADD_ASSIGN;
 	}
 	| SUB_ASSIGN_T
 	{
-
+		$$ = SUB_ASSIGN;
 	}
 	| MUL_ASSIGN_T
 	{
-
+		$$ = MUL_ASSIGN;
 	}
 	| DIV_ASSIGN_T
 	{
-
+		$$ = DIV_ASSIGN;
 	}
 	| MOD_ASSIGN_T
 	{
-
+		$$ = MOD_ASSIGN;
 	}
 	;
 logical_or_expression
 	: logical_and_expression
 	| logical_or_expression LOGICAL_OR logical_and_expression
 	{
-
+		$$ = dkc_create_binary_expression(LOGICAL_OR_EXPRESSION, $1, $3);
 	}
 	;
 logical_and_expression
 	: equality_expression
 	| logical_and_expression LOGICAL_AND equality_expression
 	{
-
+		$$ = dkc_create_binary_expression(LOGICAL_AND_EXPRESSION, $1, $3);
 	}
 	;
 equality_expression
 	: relational_expression
 	| equality_expression EQ relational_expression
 	{
-
+		$$ = dkc_create_binary_expression(EQ_EXPRESSION, $1, $3);
 	}
 	| equality_expression NE relational_expression
 	{
-
+		$$ = dkc_create_binary_expression(NE_EXPRESSION, $1, $3);
 	}
 	;
 relational_expression
 	: additive_expression
 	| relational_expression GT additive_expression
 	{
-
+		$$ = dkc_create_binary_expression(GT_EXPRESSION, $1, $3);
 	}
 	| relational_expression GE additive_expression
 	{
-
+		$$ = dkc_create_binary_expression(GE_EXPRESSION, $1, $3);
 	}
 	| relational_expression LT additive_expression
 	{
-
+		$$ = dkc_create_binary_expression(LT_EXPRESSION, $1, $3);
 	}
 	| relational_expression LE additive_expression
 	{
-
+		$$ = dkc_create_binary_expression(LE_EXPRESSION, $1, $3);
 	}
 	;
 additive_expression
 	: multiplicative_expression
 	| additive_expression ADD multiplicative_expression
 	{
-
+		$$ = dkc_create_binaray_expression(ADD_EXPRESSION, $1, $3);
 	}
 	| additive_expression SUB multiplicative_expression
 	{
-
+		$$ = dkc_create_binaray_expression(SUB_EXPRESSION, $1, $3);
 	}
 	;
 multiplicative_expression
 	: unary_expression
 	| multiplicative_expression MUL unary_expression
 	{
-
+		$$ = dkc_create_binary_expression(MUL_EXPRESSION, $1, $3);
 	}
 	| multiplicative_expression DIV unary_expression
 	{
-
+		$$ = dkc_create_binary_expression(DIV_EXPRESSION, $1, $3);
 	}
 	| multiplicative_expression MOD unary_expression
 	{
-
+		$$ = dkc_create_binary_expression(MOD_EXPRESSION, $1, $3);
 	}
 	;
 unary_expression
 	: postfix_expression
 	| SUB unary_expression
 	{
-
+		$$ = dkc_create_minus_expression($2);
 	}
 	| EXCLAMATION unary_expression
 	{
-
+		$$ = dkc_create_logical_not_expression($2);
 	}
 	;
 postfix_expression
 	: primary_expression
 	| postfix_expression LP argument_list RP
 	{
-		printf("postfix expression\n");
+		$$ = dkc_create_function_call_expression($1, $3);
 	}
 	| postfix_expression LP RP
 	{
-		printf("postfix expression\n");
+		$$ = dkc_create_function_call_expression($1, NULL);
 	}
 	| postfix_expression INCREMENT
 	{
-		printf("postfix expression\n");
+		$$ = dkc_create_incdec_expression($1, INCREMENT_EXPRESSION);
 	}
 	| postfix_expression DECREMENT
 	{
-		printf("postfix expression\n");
+		$$ = dkc_create_incdec_expression($1, DECREMENT_EXPRESSION);
 	}
 	;
 primary_expression
 	: LP expression RP
 	{
-		printf("(a=b)");
+		$$ = $2;
 	}
 	| IDENTIFIER
 	{
-
+		$$ = dkc_create_identifier_expression($1);
 	}
 	| INT_LITERAL
 	| DOUBLE_LITERAL
@@ -275,17 +275,17 @@ primary_expression
 	| REGEXP_LITERAL
 	| TRUE_T
 	{
-
+		$$ = dkc_create_boolean_expression(DVM_TRUE);
 	}
 	| FALSE_T
 	{
-
+		$$ = dkc_create_boolean_expression(DVM_FALSE);
 	}
 	;
 statement
 	: expression SEMICOLON
 	{
-		printf("a=b;");
+		$$ = dkc_create_expression_statement($1);
 	}
 	| if_statement
 	| while_statement
@@ -301,32 +301,32 @@ statement
 if_statement
 	: IF LP expression RP block
 	{
-		printf("if");
+		$$ = dkc_create_if_statement($3, $5, NULL, NULL);
 	}
 	| IF LP expression RP block ELSE block
 	{
-		printf("if");
+		$$  = dkc_create_if_statement($3, $5, NULL, $7);
 	}
 	| IF LP expression RP block elseif_list
 	{
-		printf("if");
+		$$ = dkc_create_if_statement($3, $5, $6, NULL);
 	}
 	| IF LP expression RP block elseif_list ELSE block
 	{
-		printf("if");
+		$$ = dkc_create_if_statement($3, $5, $6, $8);
 	}
 	;
 elseif_list
 	: elseif
 	| elseif_list elseif
 	{
-		printf("elseif (a>b) {} elseif(a>b) {}\n");
+		$$ = dkc_chain_elseif_list($1, $2);
 	}
 	;
 elseif
 	: ELSEIF LP expression RP block
 	{
-		printf("elseif (a>b) {}\n");
+		$$ = dkc_create_elseif($3, $5);
 	}
 	;
 label_opt
@@ -336,25 +336,25 @@ label_opt
 	}
 	| IDENTIFIER COLON
 	{
-		printf("abc :\n");
+		$$ = $1;
 	}
 	;
 while_statement
 	: label_opt WHILE LP expression RP block
 	{
-		printf("abc : while (abc>1) {}\n");
+		$$ = dkc_create_while_statement($1, $4, $6);
 	}
 	;
 for_statement
 	: label_opt FOR LP expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RP block
 	{
-		printf("abc : for (abc=1;i>1;i++) {}\n");
+		$$ = dkc_create_for_statement($1, $4, $6, $8, $10);
 	}
 	;
 foreach_statement
 	: label_opt FOREACH LP IDENTIFIER COLON expression RP block
 	{
-		printf("abc : foreach (abc : def) {}\n");
+		$$ = dkc_create_foreach_statement($1, $4, $6, $8);
 	}
 	;
 expression_opt
@@ -367,7 +367,7 @@ expression_opt
 return_statement
 	: RETURN_T expression_opt SEMICOLON
 	{
-		printf("return abc;\n");
+		$$ = dkc_create_return_statement($2);
 	}
 	;
 identifier_opt
@@ -380,41 +380,41 @@ identifier_opt
 break_statement
 	: BREAK identifier_opt SEMICOLON
 	{
-		printf("break abc;\n");
+		$$ = dkc_create_break_statement($2);
 	}
 	;
 continue_statement
 	: CONTINUE identifier_opt SEMICOLON
 	{
-		printf("continue abc;\n");
+		$$ = dkc_create_continue_statement($2);
 	}
 	;
 try_statement
 	: TRY block CATCH LP IDENTIFIER RP block FINALLY block
 	{
-		printf("try {} cathc (abc) {} finally {}\n");
+		$$ = dkc_create_try_statement($2, $5, $7, $9);
 	}
 	| TRY block FINALLY block
 	{
-		printf("try {} finally {}\n");
+		$$ = dkc_create_try_statement($2, NULL, NULL, $4);
 	}
 	| TRY block CATCH LP IDENTIFIER RP block
 	{
-		printf("try {} cathc (abc) {}\n");
+		$$ = dkc_create_try_statement($2, $5, $7, NULL);
 	}
 throw_statement
 	: THROW expression SEMICOLON
 	{
-		printf("throw a;\n");
+		$$ = dkc_create_throw_statement($2);
 	}
 declaration_statement
 	: type_specifier IDENTIFIER SEMICOLON
 	{
-		printf("int abc;\n");
+		$$ = dkc_create_declaration_statement($1, $2, NULL);
 	}
 	| type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
 	{
-		printf("int abc = a + b;\n");
+		$$ = dkc_create_declaration_statement($1, $2, $4);
 	}
 	;
 block
