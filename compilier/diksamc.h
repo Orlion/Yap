@@ -330,6 +330,8 @@ DKC_Compiler *dkc_get_current_compiler(void);
 void dkc_set_current_compiler(DKC_Compiler *compiler);
 void *dkc_malloc(size_t size);
 TypeSpecifier *dkc_alloc_type_specifier(DVM_BasicType type);
+FunctionDefinition *dkc_search_function(char *name);
+Declaration *dkc_search_declaration(char *identifier, Block *block);
 
 /* interface.c */
 void dkc_compile_error(int line_number, char *msg);
@@ -353,14 +355,14 @@ Statement *dkc_create_continue_statement(char *label);
 
 Statement *dkc_create_try_statement(Block *try_block, char *exception, Block *catch_block, Block *finally_block);
 
-Statement *dkc_create_throm_statement(Expression *expression);
+Statement *dkc_create_throw_statement(Expression *expression);
 
 Expression *dkc_alloc_expression(ExpressionKind kind);
 
-Statement *dkc_create_declaration_statement(DVM_BasicType type; char *identifier, Expression *initializer);
+Statement *dkc_create_declaration_statement(DVM_BasicType type, char *identifier, Expression *initializer);
 
 Block *dkc_open_block(void);
-Blokc *dkc_close_block(Block *block, StatementList *statement_list);
+Block *dkc_close_block(Block *block, StatementList *statement_list);
 
 Statement *dkc_create_while_statement(char *label, Expression *condition, Block *block);
 
@@ -376,9 +378,9 @@ Expression *dkc_create_boolean_expression(DVM_Boolean value);
 
 Expression *dkc_create_identifier_expression(char *identifier);
 
-Expression *dkc_create_incede_expression(Expression *operand, ExpressionKind inc_or_dec);
+Expression *dkc_create_incdec_expression(Expression *operand, ExpressionKind inc_or_dec);
 
-Expression *dkc_create_function_call_exrpession(Expression *function, ArgumentList *argument);
+Expression *dkc_create_function_call_expression(Expression *function, ArgumentList *argument);
 
 Expression *dkc_create_logical_not_expression(Expression *operand);
 
@@ -403,5 +405,7 @@ ParameterList *dkc_create_parameter(DVM_BasicType type, char *identifier);
 ParameterList *dkc_chain_parameter(ParameterList *list, DVM_BasicType type, char *identifier);
 
 void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *paramter_list, Block *block);
+
+StatementList *dkc_chain_statement_list(StatementList *list, Statement *statement);
 
 #endif

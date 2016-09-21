@@ -109,7 +109,7 @@ argument_list
 	}
 	| argument_list COMMA assignment_expression
 	{
-		$$ = dkc_chain_argumnet_list($1, $3);
+		$$ = dkc_chain_argument_list($1, $3);
 	}
 	;
 statement_list
@@ -210,11 +210,11 @@ additive_expression
 	: multiplicative_expression
 	| additive_expression ADD multiplicative_expression
 	{
-		$$ = dkc_create_binaray_expression(ADD_EXPRESSION, $1, $3);
+		$$ = dkc_create_binary_expression(ADD_EXPRESSION, $1, $3);
 	}
 	| additive_expression SUB multiplicative_expression
 	{
-		$$ = dkc_create_binaray_expression(SUB_EXPRESSION, $1, $3);
+		$$ = dkc_create_binary_expression(SUB_EXPRESSION, $1, $3);
 	}
 	;
 multiplicative_expression

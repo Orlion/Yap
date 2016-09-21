@@ -246,7 +246,7 @@ Expression *dkc_create_identifier_expression(char *identifier)
 	return exp;
 }
 
-Expression *dkc_create_incede_expression(Expression *operand, ExpressionKind inc_or_dec)
+Expression *dkc_create_incdec_expression(Expression *operand, ExpressionKind inc_or_dec)
 {
 	Expression *exp;
 
@@ -256,7 +256,7 @@ Expression *dkc_create_incede_expression(Expression *operand, ExpressionKind inc
 	return exp;
 }
 
-Expression *dkc_create_function_call_exrpession(Expression *function, ArgumentList *argument)
+Expression *dkc_create_function_call_expression(Expression *function, ArgumentList *argument)
 {
 	Expression *exp;
 
@@ -391,6 +391,69 @@ ParameterList *dkc_chain_parameter(ParameterList *list, DVM_BasicType type, char
 	return list;
 }
 
+static FunctionDefinition *create_function_definition(DVM_BasicType type, char *idnetifier, ParameterList *parameter_list, Block *block) 
+{
+	FunctionDefinition *fd;
+	DKC_Compiler *compiler;
+
+	compiler = dkc_get_current_compiler();
+
+	fd = dkc_malloc(sizeof(FunctionDefinition));
+	fd->type = dkc_alloc_type_specifier(type);
+	fd->name = identifier;
+	fd->parameter = parameter_list;
+	fd->block = block;
+	fd->index = compiler->function_count;
+	compiler->function_count++;
+	fd->local_variable_count = 0;
+	fd->local_variable = NULL;
+	fd->next = NULL;
+
+	return fd;
+}
+
 void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *paramter_list, Block *block)
 {
+	FunctionDefinition *fd;
+	FunctionDefinition *pos;
+
+	DKC_Compiler *compiler;
+
+	char msg[100];
+
+	if (dkc_search_function(identifier) || dkc_search_declaration(identifier, NULL)) {	
+		sprintf(msg, "cannot redeclare [%s]", identifier);
+		dkc_compile_error(dkc_get_current_compiler()->current_line_number, msg);
+
+		return;
+	}
+	fd = create_function_definition(type, identifier, parameter_list, block);
+
+	if (blokc) {
+		block->type = FUNCTION_BLOCK;
+		block->parent.function.function = fd;
+	}
+
+	compiler = dkc_get_current_compiler();
+	if (compiler->function_list) {
+		for (pos = compiler->function_list; pos->next; pos = pos->next)
+			;
+		pos->next = fd;
+	} else {
+		compiler->function_list = fd;
+	}
+}
+
+StatementList *dkc_chain_statement_list(StatementList *list, Statement statement)
+{
+	Statement *pos;
+
+	if (list == NULL)
+		return dkc_create_statement_list(statement);
+
+	for (pos = list; pos->next; pos = pos->next)
+		;
+	pos->next = dkc_create_statement_list(statement);
+
+	return list;
 }
