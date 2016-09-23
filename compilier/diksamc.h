@@ -409,4 +409,6 @@ void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *pa
 
 StatementList *dkc_chain_statement_list(StatementList *list, Statement *statement);
 
+/* fix_tree.c */
+void dkc_fix_tree(DKC_Compiler *compiler);
 #endif
