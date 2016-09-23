@@ -1,3 +1,5 @@
+#include "diksamc.h"
+
 Expression *dkc_alloc_expression(ExpressionKind kind)
 {
 	Expression *exp;
@@ -15,8 +17,8 @@ Block *dkc_open_block(void)
 	Block *new_block;
 
 	DKC_Compiler *compiler = dkc_get_current_compiler();
-	new_block = dkc_malloc(sizeof(Blokc));
-	new_blokc->type = UNDEFINED_BLOCK;
+	new_block = dkc_malloc(sizeof(Block));
+	new_block->type = UNDEFINED_BLOCK;
 	new_block->outer_block = compiler->current_block;
 	new_block->declaration_list = NULL;
 	compiler->current_block = new_block;
@@ -44,7 +46,7 @@ Statement *alloc_statement(StatementType type)
 	return st;
 }
 
-Declaration *dkc_alloc_declaration(TypeSpecfier *type, char *identifier)
+Declaration *dkc_alloc_declaration(TypeSpecifier *type, char *identifier)
 {
 	Declaration *decl;
 
@@ -65,7 +67,7 @@ Statement *dkc_create_declaration_statement(DVM_BasicType type, char *identifier
 
 	decl = dkc_alloc_declaration(dkc_alloc_type_specifier(type), identifier);
 
-	decl->identifier = identifier;
+	decl->initializer = initializer;
 
 	st->u.declaration_s = decl;
 
@@ -86,7 +88,7 @@ Statement *dkc_create_try_statement(Block *try_block, char *exception, Block *ca
 {
 	Statement *st;
 
-	st = alloc_statement(TAR_STATEMENT);
+	st = alloc_statement(TRY_STATEMENT);
 	st->u.try_s.try_block = try_block;
 	st->u.try_s.catch_block = catch_block;
 	st->u.try_s.exception = exception;
@@ -129,7 +131,7 @@ Statement *dkc_create_foreach_statement(char *label, char *variable, Expression 
 {
 	Statement *st;
 
-	st = alloc_statement(FOREACH_STAEMENT);
+	st = alloc_statement(FOREACH_STATEMENT);
 	st->u.foreach_s.label = label;
 	st->u.foreach_s.variable = variable;
 	st->u.foreach_s.collection = collection;
@@ -142,7 +144,7 @@ Statement *dkc_create_for_statement(char *label, Expression *init, Expression *c
 {
 	Statement *st;
 
-	st = alloc_statement;
+	st = alloc_statement(FOR_STATEMENT);
 	st->u.for_s.label = label;
 	st->u.for_s.init = init;
 	st->u.for_s.condition = cond;
@@ -160,7 +162,7 @@ Statement *dkc_create_while_statement(char *label, Expression *condition, Block 
 
 	st = alloc_statement(WHILE_STATEMENT);
 	st->u.while_s.label = label;
-	st->u.while_s.condtion = condition;
+	st->u.while_s.condition = condition;
 	st->u.while_s.block = block;
 	block->type = WHILE_STATEMENT_BLOCK;
 	block->parent.statement.statement = st;
@@ -173,7 +175,7 @@ Elseif *dkc_create_elseif(Expression *expr, Block *block)
 	Elseif *ei;
 
 	ei = dkc_malloc(sizeof(Elseif));
-	ei->condition = condition;
+	ei->condition = expr;
 	ei->block = block;
 	ei->next = NULL;
 
@@ -214,18 +216,6 @@ Statement *dkc_create_expression_statement(Expression *expression)
 	return st;
 }
 
-Expression *dkc_alloc_expression(ExpressionKind kind)
-{
-	Expression *exp;
-
-	exp = dkc_malloc(sizeof(Expression));
-	exp->type = NULL;
-	exp->kind = kind;
-	exp->line_number = dkc_get_current_compiler()->current_line_number;
-
-	return exp;
-}
-
 Expression *dkc_create_boolean_expression(DVM_Boolean value)
 {
 	Expression *exp;
@@ -251,7 +241,7 @@ Expression *dkc_create_incdec_expression(Expression *operand, ExpressionKind inc
 	Expression *exp;
 
 	exp = dkc_alloc_expression(inc_or_dec);
-	exp->u.inc_or_dec.operand = operand;
+	exp->u.inc_dec.operand = operand;
 
 	return exp;
 }
@@ -319,7 +309,7 @@ Expression *dkc_create_comma_expression(Expression *left, Expression *right)
 	return exp;
 }
 
-StatementList *dkc_create_statement_list(Statenment *statement)
+StatementList *dkc_create_statement_list(Statement *statement)
 {
 	StatementList *sl;
 
@@ -328,21 +318,6 @@ StatementList *dkc_create_statement_list(Statenment *statement)
 	sl->next = NULL;
 
 	return sl;
-}
-
-StatementList *dkc_chain_statement_list(StatementList *list, Statement *statement)
-{
-	StatementList *pos;
-
-	if (list == NULL) {
-		return dkc_create_statement_list(statement);	
-	}
-
-	for (pos = list; pos->next; pos = pos->next)
-		;
-	pos->next = dkc_create_statement_list(statement);
-
-	return list;
 }
 
 ArgumentList *dkc_create_argument_list(Expression *expression)
@@ -391,7 +366,7 @@ ParameterList *dkc_chain_parameter(ParameterList *list, DVM_BasicType type, char
 	return list;
 }
 
-static FunctionDefinition *create_function_definition(DVM_BasicType type, char *idnetifier, ParameterList *parameter_list, Block *block) 
+static FunctionDefinition *create_function_definition(DVM_BasicType type, char *identifier, ParameterList *parameter_list, Block *block) 
 {
 	FunctionDefinition *fd;
 	DKC_Compiler *compiler;
@@ -412,7 +387,7 @@ static FunctionDefinition *create_function_definition(DVM_BasicType type, char *
 	return fd;
 }
 
-void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *paramter_list, Block *block)
+void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *parameter_list, Block *block)
 {
 	FunctionDefinition *fd;
 	FunctionDefinition *pos;
@@ -429,7 +404,7 @@ void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *pa
 	}
 	fd = create_function_definition(type, identifier, parameter_list, block);
 
-	if (blokc) {
+	if (block) {
 		block->type = FUNCTION_BLOCK;
 		block->parent.function.function = fd;
 	}
@@ -444,9 +419,9 @@ void dkc_function_define(DVM_BasicType type, char *identifier, ParameterList *pa
 	}
 }
 
-StatementList *dkc_chain_statement_list(StatementList *list, Statement statement)
+StatementList *dkc_chain_statement_list(StatementList *list, Statement *statement)
 {
-	Statement *pos;
+	StatementList *pos;
 
 	if (list == NULL)
 		return dkc_create_statement_list(statement);

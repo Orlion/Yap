@@ -4,6 +4,7 @@
 #include "MEM.h"
 #include "DKC.h"
 #include "DVM_code.h"
+#include "share.h"
 
 #define smaller(a, b) ((a) < (b) ? (a) : (b))
 #define larger(a, b) ((a) > (b) ? (a) : (b))
@@ -37,7 +38,7 @@ typedef struct TypeDerive_tag {
 } TypeDerive;
 
 struct TypeSpecifier_tag {
-	DVM_BasicType	base_type;		/* 基本数据类型 */
+	DVM_BasicType	basic_type;		/* 基本数据类型 */
 	TypeDerive 		*derive;			/* 派生类型 */
 };
 
@@ -49,7 +50,7 @@ typedef struct ArgumentList_tag {
 } ArgumentList;
 
 typedef struct {
-	char 				*name;
+	char 			*name;
 	TypeSpecifier 	*type;
 	Expression		*initializer;		/* 构造函数 */
 	int 				variable_index;
@@ -114,7 +115,7 @@ typedef enum {
 typedef struct {
 	AssignmentOperator operator;
 	Expression *left;
-	Expression *right;
+	Expression *operand;
 } AssignExpression;
 
 typedef struct {
@@ -197,7 +198,7 @@ typedef struct {
 
 typedef struct Block_tag {
 	BlockType		type;
-	struct Block_tag *out_block;		/* 上层程序块，查找变量时先从当前代码块查找再从上层代码块查找 */
+	struct Block_tag *outer_block;		/* 上层程序块，查找变量时先从当前代码块查找再从上层代码块查找 */
 	StatementList 	*statement_list;
 	DeclarationList  *declaration_list;
 	union {
@@ -218,9 +219,9 @@ struct FunctionDefinition_tag {
 };
 
 typedef enum {
-	EXRPESSION_STATEMENT = 1,
+	EXPRESSION_STATEMENT = 1,
 	IF_STATEMENT,
-	WHILE_STATEMNET,
+	WHILE_STATEMENT,
 	FOR_STATEMENT,
 	FOREACH_STATEMENT,
 	RETURN_STATEMENT,
@@ -241,7 +242,7 @@ typedef struct Elseif_tag {
 typedef struct {
 	Expression *condition;
 	Block 		*then_block;
-	Elseif 		*elseif_block;
+	Elseif 		*elseif_list;
 	Block 		*else_block;
 } IfStatement;
 
@@ -256,7 +257,7 @@ typedef struct {
 	Expression 	*init;
 	Expression 	*condition;
 	Expression 	*post;
-	Expression 	*block;
+	Block 	*block;
 } ForStatement;
 
 typedef struct {

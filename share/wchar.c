@@ -1,5 +1,6 @@
 #include <wchar.h>
 #include <limits.h>
+#include <string.h>
 
 int dvm_mbstowcs_len(const char *src)
 {
@@ -27,7 +28,7 @@ void dvm_mbstowcs(const char *src, wchar_t *dest)
 	mbstate_t ps;
 
 	memset(&ps, 0, sizeof(mbstate_t));
-	for (src_idx = dest_idx = 0; src[src_idx] != '\0') {
+	for (src_idx = dest_idx = 0; src[src_idx] != '\0';) {
 		status = mbrtowc(&dest[dest_idx], &src[src_idx], MB_LEN_MAX, &ps);
 		dest_idx++;
 		src_idx += status;

@@ -1,4 +1,6 @@
+#include <string.h>
 #include "diksamc.h"
+#include "MEM.h"
 
 static DKC_Compiler *st_current_compiler;
 
@@ -48,15 +50,15 @@ FunctionDefinition *dkc_search_function(char *name)
 	return pos;
 }
 
-Declaration *dkc_search_decalartion(char *identifier, Block *block)
+Declaration *dkc_search_declaration(char *identifier, Block *block)
 {
 	Block *b_pos;
-	Declaration *d_pos;
+	DeclarationList *d_pos;
 	DKC_Compiler *compiler;
 
 	for (b_pos = block; b_pos; b_pos = b_pos->outer_block) {
-		for (d_pos = b_pos->decalration_list; d_pos; d_pos = d_pos->next) {
-			if (!strcmp(identifier, d_pos->decalration->name)) {
+		for (d_pos = b_pos->declaration_list; d_pos; d_pos = d_pos->next) {
+			if (!strcmp(identifier, d_pos->declaration->name)) {
 				return d_pos->declaration;
 			}
 		}
@@ -64,11 +66,11 @@ Declaration *dkc_search_decalartion(char *identifier, Block *block)
 
 	compiler = dkc_get_current_compiler();
 
-	for (d_pos = compiler->decalration_list; d_pos; d_pos = d_pos->next) {
-		if (strcmp(identifier, d_pos->decalration->name)) {
-			return d_pos->decalration;
+	for (d_pos = compiler->declaration_list; d_pos; d_pos = d_pos->next) {
+		if (strcmp(identifier, d_pos->declaration->name)) {
+			return d_pos->declaration;
 		}
 	}
 
-	return NULL:
+	return NULL;
 }

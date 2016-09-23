@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <string.h>
+#include "MEM.h"
+#include "diksamc.h"
+
 #define STRING_ALLOC_SIZE 	(256)
 
 static int st_string_literal_buffer_size = 0;
@@ -13,7 +18,7 @@ void dkc_add_string_literal(int letter)
 {
 	if (st_string_literal_buffer_size == st_string_literal_buffer_alloc_size) {
 		st_string_literal_buffer_alloc_size += STRING_ALLOC_SIZE;
-		st_string_literal_buffer = MEM_realloc(st_string_literal_buffer, st_string_literal_buffer_alloc_size);=
+		st_string_literal_buffer = MEM_realloc(st_string_literal_buffer, st_string_literal_buffer_alloc_size);
 	}
 	st_string_literal_buffer[st_string_literal_buffer_size] = letter;
 	st_string_literal_buffer_size++;
@@ -25,11 +30,11 @@ DVM_Char *dkc_close_string_literal()
 	int new_str_len;
 
 	dkc_add_string_literal('\0');
-	new_str_len = dvm_mbstows_len(st_string_literal_buffer);
+	new_str_len = dvm_mbstowcs_len(st_string_literal_buffer);
 	if (new_str_len < 0) {
-		dkc_compiler_error(dkc_get_current_compiler()->current_line_number, "Bad char");
+		dkc_compile_error(dkc_get_current_compiler()->current_line_number, "Bad char");
 	}
-	new__str = MEM_malloc(sizeof(DVM_Char) * (new_str_len+1));
+	new_str = MEM_malloc(sizeof(DVM_Char) * (new_str_len+1));
 	dvm_mbstowcs(st_string_literal_buffer, new_str);
 
 	return new_str;

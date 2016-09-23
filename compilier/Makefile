@@ -5,8 +5,11 @@ OBJS = \
   y.tab.o\
   main.o\
   interface.o\
+  create.o\
+  string.o\
   util.o\
   ../memory/mem.o\
+  ../share/share.o
 
 CFLAGS = -c -g -Wall -Wswitch-enum -ansi -pedantic -DDEBUG -DSHIFT_JIS_SOURCE
 
@@ -15,6 +18,7 @@ INCLUDES = \
   -I../include
 
 $(TARGET):$(OBJS)
+	cd ../share; $(MAKE);
 	cd ../memory; $(MAKE);
 	$(CC) $(OBJS) -o $@ -lm
 
@@ -35,11 +39,15 @@ lex.yy.o: lex.yy.c diksamc.h ../include/MEM.h
 	$(CC) $(CFLAGS) $*.c $(INCLUDES)
 ../memory/mem.o:
 	cd ../memory; $(MAKE);
+../share/share.o:
+	cd ../share; $(MAKE);
 ############################################################
+create.o: create.c ../include/MEM.h diksamc.h
 interface.o: interface.c ../include/MEM.h diksamc.h \
  ../include/DKC.h ../include/DVM_code.h ../include/DVM.h
 main.o: main.c ../include/DKC.h ../include/DVM_code.h ../include/DVM.h \
  ../include/MEM.h
+ string.o: string.c ../include/MEM.h diksamc.h ../include/DKC.h ../include/DVM_code.h ../include/share.h
 util.o: util.c ../include/MEM.h diksamc.h \
  ../include/DKC.h ../include/DVM_code.h ../include/DVM.h
  

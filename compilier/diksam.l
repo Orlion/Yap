@@ -176,7 +176,7 @@ static void increment_line_number(void)
 	} else {
 		sprintf(buf, "0x%02x", (unsigned char)yytext[0]);
 	}
-	dkc_compiler_error(dkc_get_current_compiler()->current_line_number, buf);
+	dkc_compile_error(dkc_get_current_compiler()->current_line_number, buf);
 }
 <C_COMMENT>\n increment_line_number();
 <C_COMMENT>"*/" {

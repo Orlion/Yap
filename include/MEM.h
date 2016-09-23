@@ -13,5 +13,5 @@ void *MEM_storage_malloc_func(char *filename, int line, MEM_Storage storage, siz
 #define MEM_storage_malloc(storage, size) (MEM_storage_malloc_func(__FILE__, __LINE__, storage, size))
 
 void *MEM_realloc_func(char *filename, int line, void *ptr, size_t size);
-#define MEM_realloc(ptr, size) (MEM_realloc_func(__FILE__, __LINE__, str))
+#define MEM_realloc(ptr, size) (MEM_realloc_func(__FILE__, __LINE__, ptr, size))
 #endif
