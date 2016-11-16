@@ -25,6 +25,7 @@ $(TARGET):$(OBJS)
 clean:
 	rm -f *.o lex.yy.c y.tab.c y.output y.tab.h *~;
 	cd ../memory; $(MAKE) clean;
+	cd ../share; $(MAKE) clean;
 y.tab.h : diksam.y
 	bison --yacc -dv diksam.y
 y.tab.c : diksam.y

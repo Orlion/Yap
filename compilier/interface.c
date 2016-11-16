@@ -12,7 +12,7 @@ static DVM_Executable *do_compile(DKC_Compiler *compiler)
 		fprintf(stderr, "Error\n");
 		exit(1);
 	}
-	dkc_fix_tree(compiler);				/* 修正分析树 */
+	/* dkc_fix_tree(compiler); */				/* 修正分析树 */
 	/* exe = dkc_generate(compiler); */
 
 	return exe;

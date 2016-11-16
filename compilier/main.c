@@ -9,6 +9,7 @@ int main(int argc, char **argv)
 	FILE *fp;
 	DKC_Compiler *compiler;
 	DVM_Executable *exe;
+	DVM_VirtualMachine *dvm;
 
 	if (argc < 2) {
 		fprintf(stderr, "Programe:%s filename arg1, arg2, ...\n", argv[0]);
@@ -25,6 +26,8 @@ int main(int argc, char **argv)
 	setlocale(LC_CTYPE, "");
 	compiler = DKC_create_compiler();
 	exe = DKC_compile(compiler, fp);
+	dvm = DVM_create_virtual_machine();
+	DVM_execute(dvm);
 
 	return 0;
 }

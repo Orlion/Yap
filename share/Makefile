@@ -5,6 +5,8 @@ OBJS = wchar.o
 
 $(TARGET):$(OBJS)
 	ld -r -o $@ $(OBJS)
+clean:
+	rm -f *.o
 .c.o:
 	$(CC) $(CFLAGS) -I ../include $*.c
 wchar.o: wchar.c ../include/MEM.h ../include/DVM.h
