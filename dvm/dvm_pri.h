@@ -1,3 +1,10 @@
+#ifndef DVM_PRI_H_INCLUDE
+#define DVM_PRI_H_INCLUDE
+
+#define STACK_ALLOC_SIZE (4096)
+
+#define HEAP_THRESHOLD_SIZE (1024 * 256)
+
 typedef struct {
 	DVM_NativeFunctionProc *proc;
 	int arg_count;
@@ -54,3 +61,7 @@ struct DVM_VirtualMachine_tag {
 	int 		function_count;
 	DVM_Executable 	*executable;
 };
+/* native.c */
+void dvm_add_native_functions(DVM_VirtualMachine *dvm);
+
+#endif /* DVM_PRI_H_INCLUDE */

@@ -11,4 +11,5 @@ typedef enum {
 
 DVM_VirtualMachine *DVM_create_virtual_machine(void);
 
+DVM_Value DVM_Execute(DVM_VirtualMachine *dvm);
 #endif
