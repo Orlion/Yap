@@ -1,5 +1,22 @@
 #include "dvm_pri.h"
 
+void DVM_add_executable(DVM_VirtualMachine *dvm, DVM_Executable *executable)
+{
+	int i;
+
+	dvm->executable = executable;
+
+	add_function(dvm, executable);
+
+	convert_code(dvm, executable, executable->code, executable->code_size), NULL;
+
+	for (i = 0; i < executable->function_count; i++) {
+		convert_code(dvm, executable, executable->function[i].code, executable->function[i].code_size, executable->function[i]);
+	}
+
+	add_static_variable(dvm, executable);
+}
+
 DVM_VirtualMachine *DVM_create_virtual_machine(void)
 {
 	DVM_VirtualMachine *dvm;

@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 	compiler = DKC_create_compiler();
 	exe = DKC_compile(compiler, fp);
 	dvm = DVM_create_virtual_machine();
+	DVM_add_executable(dvm, exe);
 	DVM_execute(dvm);
 
 	return 0;
